@@ -1,6 +1,7 @@
 package othersPackage;
 
 import org.eclipse.jdt.core.dom.*;
+//import org.eclipse.jdt.core.dom.*;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -13,12 +14,15 @@ public class Operation {
     Stack<GraphNode> graphNodeStack = new Stack<GraphNode> ();
     Set<GraphNode> assertNodeSet = new HashSet<>();
     Set<GraphNode> tryBodySet = new HashSet<>();
-    Map<IVariableBinding,Set<GraphNode>> map = new HashMap<>();
+    Map<IVariableBinding,Set<GraphNode>> mapForVariableBinding = new HashMap<>();
+    Map<IMethodBinding,Set<GraphNode>> mapForMethodInvocationBinding = new HashMap<>();
+    Map<IMethodBinding,GraphNode> mapForMethodDeclarationBinding = new HashMap<>();
     int i = 0;
     int marker = 0;
     int marking = 0;
     IVariableBinding s;
-    public Set<IVariableBinding> nameSet = new HashSet<>();
+    public Set<IVariableBinding> setOfVariableBinding = new HashSet<>();
+    public Set<IMethodBinding> setOfMethodBinding = new HashSet<>();
     ASTNode startingNode;
     Set<ASTNode> nodesForBackwardSlicing = new TreeSet<>(Comparator.comparing(ASTNode::getStartPosition));
     Set<ASTNode> nodesForForwardSlicing = new TreeSet<>(Comparator.comparing(ASTNode::getStartPosition));
@@ -42,10 +46,11 @@ public class Operation {
 
     public void parse(String str) {
         ASTParser parser = ASTParser.newParser(AST.JLS3);
+        parser.setResolveBindings(true);
         parser.setSource(str.toCharArray());
         parser.setKind(ASTParser.K_COMPILATION_UNIT);
-        parser.setResolveBindings(true);
         //parser.setEnvironment(new String[] {"C:\\Users\\ASUS\\Desktop\\demo\\out\\production\\demo"}, new String[] {"C:\\Users\\ASUS\\Desktop\\demo\\src"}, null, true);
+        parser.setEnvironment(null, null, null, true);
         parser.setUnitName("Saal.java");
         final CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 
@@ -269,7 +274,7 @@ public class Operation {
 
             public boolean visit (SimpleName node) {
                 IBinding bind = node.resolveBinding();
-                if(map.containsKey(bind))
+                if(mapForVariableBinding.containsKey(bind))
                 {
                     //System.out.println(node);
                 }
@@ -424,39 +429,41 @@ public class Operation {
                 graphNodeStack.pop();
             }
 
-            public boolean visit (MethodDeclaration node) {
-                GraphNode temp;
-                temp = new GraphNode(node);
-                temp.parents.add(graphNodeStack.peek());
-                graphNodeStack.peek().children.add(temp);
-                graphNodeStack.push(temp);
-                return true;
-            }
-
-            public void endVisit (MethodDeclaration node) {
-                graphNodeStack.pop();
-            }
-
             public void endVisit (VariableDeclarationStatement node) {
                 graphNodeStack.pop();
             }
 
             public boolean visit (SingleVariableDeclaration node) {
+                //System.out.println(node);
                 IVariableBinding bind = node.resolveBinding();
                 Set<GraphNode> set = new HashSet<>();
                 set.add(graphNodeStack.peek());
-                map.put(bind,set);
+                mapForVariableBinding.put(bind,set);
                 return true;
             }
 
             public boolean visit (VariableDeclarationFragment node) {
+                //System.out.println(node);
                 IVariableBinding bind = node.resolveBinding();
                 Set<GraphNode> set = new HashSet<>();
                 set.add(graphNodeStack.peek());
-                map.put(bind,set);
+                mapForVariableBinding.put(bind,set);
+               /* for (Map.Entry<IVariableBinding,Set<GraphNode>> entry : map.entrySet())
+                {
+                    System.out.println("Key = " + entry.getKey() +
+                            ", Value = " + entry.getValue());
+                    Set<GraphNode> nodeSet = entry.getValue();
+
+                    for (GraphNode gn: nodeSet)
+                    {
+                        System.out.println(gn.node);
+                    }
+
+                }*/
                 node.accept(new ASTVisitor() {
                     public boolean visit (SimpleName child)
                     {
+                        //System.out.println(child);
                         if(marking == 0)
                         {
                             s = (IVariableBinding) child.resolveBinding();
@@ -464,30 +471,31 @@ public class Operation {
                         }
                         else
                         {
-                            nameSet.add((IVariableBinding) child.resolveBinding());
+                            //System.out.println(child);
+                            setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
                         }
-                        return false;
+                        return true;
                     }
                 });
                 return true;
             }
 
             public void endVisit (VariableDeclarationFragment node) {
-                for (IVariableBinding v : nameSet)
+                for (IVariableBinding v : setOfVariableBinding)
                 {
-                    graphNodeStack.peek().getParents().addAll(map.get(v));
-                    for(GraphNode g : map.get(v))
+                    graphNodeStack.peek().getParents().addAll(mapForVariableBinding.get(v));
+                    for(GraphNode g : mapForVariableBinding.get(v))
                     {
                         g.children.add(graphNodeStack.peek());
                     }
-                    map.get(s).add(graphNodeStack.peek());
+                    mapForVariableBinding.get(s).add(graphNodeStack.peek());
                 }
-                nameSet.clear();
+                setOfVariableBinding.clear();
                 marking = 0;
             }
 
             public boolean visit (VariableDeclarationStatement node) {
-                //System.out.println(node.fragments());
+                //System.out.println(node);
 
                 GraphNode temp;
                 temp = new GraphNode(node);
@@ -507,11 +515,14 @@ public class Operation {
                 return true;
             }
 
-            public boolean visit (Assignment node) {
+            /*public boolean visit (ArrayAccess node)
+            {
+                System.out.println(node);
                 node.accept(new ASTVisitor() {
 
                     public boolean visit (SimpleName child)
                     {
+                        //System.out.println(child);
                         if(child.resolveTypeBinding() instanceof PrimitiveType)
                         {
                             if(marking == 0)
@@ -521,7 +532,7 @@ public class Operation {
                             }
                             else
                             {
-                                nameSet.add((IVariableBinding) child.resolveBinding());
+                                setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
                             }
                         }
                         return false;
@@ -531,7 +542,73 @@ public class Operation {
                     {
                         if(!(child.resolveTypeBinding() instanceof PrimitiveType))
                         {
-                            System.out.println("asd");
+                            //System.out.println("asd");
+
+                        }
+                        return false;
+                    }
+                });
+
+                return false;
+                *//*System.out.println(child.getArray().structuralPropertiesForType().get(0));
+                child.accept(new ASTVisitor() {
+
+                    public boolean visit (SimpleName arrayName){
+                        System.out.println(arrayName);
+                        if(marking == 0)
+                        {
+                            s = (IVariableBinding) arrayName.resolveBinding();
+                            marking = 1;
+                        }
+                        else
+                        {
+                            setOfVariableBinding.add((IVariableBinding) arrayName.resolveBinding());
+                        }
+                        return false;
+                    }
+                });
+
+                        *//**//*System.out.println(child.getArray());
+                        if(child.getArray().resolveTypeBinding() instanceof PrimitiveType)
+                        {
+                            if(marking == 0)
+                            {
+                                s = (IVariableBinding) child.getArray().resolveBinding();
+                                marking = 1;
+                            }
+                            else
+                            {
+                                setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
+                            }
+                        }*//**//*
+                return false;*//*
+            }*/
+
+            public boolean visit (Assignment node) {
+                //System.out.println(node);
+                node.accept(new ASTVisitor() {
+
+                    public boolean visit (SimpleName child)
+                    {
+                        //System.out.println(child);
+                        if(marking == 0)
+                        {
+                            //System.out.println("dhuksi");
+                            s = (IVariableBinding) child.resolveBinding();
+                            marking = 1;
+                        }
+                        else
+                        {
+                            setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
+                        }
+                        return false;
+                    }
+
+                    public boolean visit (QualifiedName child)
+                    {
+                        if(!(child.resolveTypeBinding() instanceof PrimitiveType))
+                        {
+                            //System.out.println("asd");
 
                         }
                         return false;
@@ -541,18 +618,132 @@ public class Operation {
                 return false;
             }
 
+            public void endVisit (Assignment node) {
+                if(setOfVariableBinding.isEmpty())
+                {
+                    GraphNode tempuNode = null;
+                    for(GraphNode g : mapForVariableBinding.get(s))
+                    {
+                        if(g.node instanceof VariableDeclarationStatement)
+                        {
+                            tempuNode = g;
+                            break;
+                        }
+                    }
+                    Set<GraphNode> tempuSet = new HashSet<>();
+                    tempuSet.add(tempuNode);
+                    tempuSet.add(graphNodeStack.peek());
+                    mapForVariableBinding.replace(s,mapForVariableBinding.get(s),tempuSet);
+
+                    tempuNode.children.add(graphNodeStack.peek());
+                    graphNodeStack.peek().parents.add(tempuNode);
+                }
+                else
+                {
+                    for (IVariableBinding v : setOfVariableBinding)
+                    {
+                        graphNodeStack.peek().getParents().addAll(mapForVariableBinding.get(v));
+                        for(GraphNode g : mapForVariableBinding.get(v))
+                        {
+                            g.children.add(graphNodeStack.peek());
+                        }
+                        mapForVariableBinding.get(s).add(graphNodeStack.peek());
+                    }
+                }
+                setOfVariableBinding.clear();
+                marking = 0;
+            }
+
             public boolean visit (MethodInvocation node) {
+
+                //System.out.println(node);
                 List<Expression> list = node.arguments();
+                //System.out.println(list);
                 for(Expression e : list)
                 {
                     e.accept(new ASTVisitor() {
                         public boolean visit (SimpleName child) {
-                            nameSet.add((IVariableBinding) child.resolveBinding());
+                            //System.out.println(child);
+                            //System.out.println(setOfVariableBinding.size());
+                            setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
+                            //System.out.println(setOfVariableBinding.size());
+                            for (IVariableBinding v : setOfVariableBinding)
+                            {
+                                for(GraphNode g : mapForVariableBinding.get(v))
+                                {
+                                    //System.out.println(g.node);
+                                }
+                            }
                             return false;
                         }
                     });
                 }
                 return false;
+            }
+
+            public void endVisit (MethodInvocation node) {
+
+                IMethodBinding bind = node.resolveMethodBinding();
+
+                if (mapForMethodInvocationBinding.containsKey(bind))
+                {
+                    mapForMethodInvocationBinding.get(bind).add(graphNodeStack.peek());
+                }
+                else
+                {
+                    Set<GraphNode> set = new HashSet<>();
+                    set.add(graphNodeStack.peek());
+                    mapForMethodInvocationBinding.put(bind, set);
+                }
+
+                if (mapForMethodDeclarationBinding.containsKey(bind))
+                {
+                    for(GraphNode g : mapForMethodInvocationBinding.get(bind))
+                    {
+                        mapForMethodDeclarationBinding.get(bind).parents.add(g);
+                        g.children.add(mapForMethodDeclarationBinding.get(bind));
+                    }
+                }
+
+                //System.out.println(node);
+                for (IVariableBinding v : setOfVariableBinding)
+                {
+                    graphNodeStack.peek().getParents().addAll(mapForVariableBinding.get(v));
+                    for(GraphNode g : mapForVariableBinding.get(v))
+                    {
+                        //System.out.println(g.node);
+                        g.children.add(graphNodeStack.peek());
+                    }
+                }
+                setOfVariableBinding.clear();
+            }
+
+            public boolean visit (MethodDeclaration node) {
+                //setOfMethodBinding.add((IMethodBinding) node.resolveBinding());
+                System.out.println(node);
+
+                GraphNode temp;
+                temp = new GraphNode(node);
+
+                IMethodBinding bind = node.resolveBinding();
+
+                mapForMethodDeclarationBinding.put(bind, temp);
+
+                if (mapForMethodInvocationBinding.containsKey(bind))
+                {
+                    for(GraphNode g : mapForMethodInvocationBinding.get(bind))
+                    {
+                        temp.parents.add(g);
+                        g.children.add(temp);
+                    }
+                }
+
+                //graphNodeStack.push(temp);
+                return true;
+            }
+
+            public void endVisit (MethodDeclaration node) {
+                //graphNodeStack.pop();
             }
 
             public boolean visit (PrefixExpression node) {
@@ -566,7 +757,7 @@ public class Operation {
             }
 
             public void endVisit (PrefixExpression node) {
-                map.get(s).add(graphNodeStack.peek());
+                mapForVariableBinding.get(s).add(graphNodeStack.peek());
             }
 
             public boolean visit (PostfixExpression node) {
@@ -580,56 +771,9 @@ public class Operation {
             }
 
             public void endVisit (PostfixExpression node) {
-                map.get(s).add(graphNodeStack.peek());
+                mapForVariableBinding.get(s).add(graphNodeStack.peek());
             }
 
-            public void endVisit (MethodInvocation node) {
-                for (IVariableBinding v : nameSet)
-                {
-                    graphNodeStack.peek().getParents().addAll(map.get(v));
-                    for(GraphNode g : map.get(v))
-                    {
-                        g.children.add(graphNodeStack.peek());
-                    }
-                }
-                nameSet.clear();
-            }
-
-            public void endVisit (Assignment node) {
-                if(nameSet.isEmpty())
-                {
-                    GraphNode tempuNode = null;
-                    for(GraphNode g : map.get(s))
-                    {
-                        if(g.node instanceof VariableDeclarationStatement)
-                        {
-                            tempuNode = g;
-                            break;
-                        }
-                    }
-                    Set<GraphNode> tempuSet = new HashSet<>();
-                    tempuSet.add(tempuNode);
-                    tempuSet.add(graphNodeStack.peek());
-                    map.replace(s,map.get(s),tempuSet);
-
-                    tempuNode.children.add(graphNodeStack.peek());
-                    graphNodeStack.peek().parents.add(tempuNode);
-                }
-                else
-                {
-                    for (IVariableBinding v : nameSet)
-                    {
-                        graphNodeStack.peek().getParents().addAll(map.get(v));
-                        for(GraphNode g : map.get(v))
-                        {
-                            g.children.add(graphNodeStack.peek());
-                        }
-                        map.get(s).add(graphNodeStack.peek());
-                    }
-                }
-                nameSet.clear();
-                marking = 0;
-            }
 
             public void postVisit (ASTNode node) {
 
@@ -684,10 +828,11 @@ public class Operation {
     public void parser (String str) {
 
         ASTParser parser = ASTParser.newParser(AST.JLS3);
+        parser.setResolveBindings(true);
         parser.setSource(str.toCharArray());
         parser.setKind(ASTParser.K_COMPILATION_UNIT);
-        parser.setResolveBindings(true);
         //parser.setEnvironment(new String[] {"C:\\Users\\ASUS\\Desktop\\demo\\out\\production\\demo"}, new String[] {"C:\\Users\\ASUS\\Desktop\\demo\\src"}, null, true);
+        parser.setEnvironment(null, null, null, true);
         parser.setUnitName("Saal.java");
         final CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 
@@ -730,19 +875,32 @@ public class Operation {
             e.printStackTrace();
         }
 
-        try {
+        /*try {
             parser(readFileToString("src/sourcePackage/Saal.java"));
 
             //kut(root);
 
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
         /*for(ASTNode n : nodes)
         {
             System.out.println(n);
         }*/
 
+        printTree(root,"");
+
+    }
+
+    public void printTree (GraphNode currentRoot, String indent)
+    {
+        System.out.print(indent);
+        System.out.println(currentRoot.node);
+
+        for(GraphNode child: currentRoot.children)
+        {
+            printTree(child, indent.concat("----"));
+        }
     }
 }
