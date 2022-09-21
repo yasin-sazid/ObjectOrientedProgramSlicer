@@ -167,7 +167,7 @@ public class Operation {
             }
 
             public boolean visit (SwitchStatement node) {
-                //System.out.println(node.getExpression());
+                System.out.println(node);
                 GraphNode temp;
                 temp = new GraphNode(node);
                 temp.parents.add(graphNodeStack.peek());
@@ -184,7 +184,8 @@ public class Operation {
             }
 
             public boolean visit (SwitchCase node) {
-                //System.out.println(node.getExpression());
+                System.out.println("ccfc");
+                System.out.println(node);
                 GraphNode temp;
                 temp = new GraphNode(node);
                 temp.parents.add(graphNodeStack.peek());
@@ -499,7 +500,7 @@ public class Operation {
 
                 GraphNode temp;
                 temp = new GraphNode(node);
-                startingNode = temp.node;
+                //startingNode = temp.node;
 
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
@@ -720,7 +721,7 @@ public class Operation {
 
             public boolean visit (MethodDeclaration node) {
                 //setOfMethodBinding.add((IMethodBinding) node.resolveBinding());
-                System.out.println(node);
+                //System.out.println(node);
 
                 GraphNode temp;
                 temp = new GraphNode(node);
@@ -737,13 +738,15 @@ public class Operation {
                         g.children.add(temp);
                     }
                 }
-
-                //graphNodeStack.push(temp);
+                graphNodeStack.peek().children.add(temp);
+                temp.parents.add(graphNodeStack.peek());
+                //System.out.println(graphNodeStack.peek().node);
+                graphNodeStack.push(temp);
                 return true;
             }
 
             public void endVisit (MethodDeclaration node) {
-                //graphNodeStack.pop();
+                graphNodeStack.pop();
             }
 
             public boolean visit (PrefixExpression node) {
@@ -849,12 +852,14 @@ public class Operation {
                     System.out.println("Backward slicing:");
                     for(ASTNode astNode: nodesForBackwardSlicing)
                     {
-                        System.out.println(astNode);
+                        //System.out.println(astNode);
+                        System.out.println(((CompilationUnit) astNode.getRoot()).getLineNumber(astNode.getStartPosition()));
                     }
                     System.out.println("Forward slicing:");
                     for(ASTNode astNode: nodesForForwardSlicing)
                     {
-                        System.out.println(astNode);
+                        //System.out.println(astNode);
+                        System.out.println(((CompilationUnit) astNode.getRoot()).getLineNumber(astNode.getStartPosition()));
                     }
                     System.out.println("---------------------------------");
                     nodesForBackwardSlicing.clear();
@@ -865,9 +870,9 @@ public class Operation {
         });
     }
 
-    public void operations () {
+    public void operations (String filePath) {
         try {
-            parse(readFileToString("src/sourcePackage/Saal.java"));
+            parse(readFileToString(filePath));
 
             //kut(root);
 
@@ -875,21 +880,22 @@ public class Operation {
             e.printStackTrace();
         }
 
-        /*try {
-            parser(readFileToString("src/sourcePackage/Saal.java"));
+        try {
+            parser(readFileToString(filePath));
 
             //kut(root);
 
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
 
         /*for(ASTNode n : nodes)
         {
             System.out.println(n);
         }*/
 
-        printTree(root,"");
+        //printTree(root,"");
+        //cyclomaticComplexity(root, "");
 
     }
 
@@ -903,4 +909,17 @@ public class Operation {
             printTree(child, indent.concat("----"));
         }
     }
+
+    /*public int cyclomaticComplexity (GraphNode currentRoot, String indent)
+    {
+        System.out.print(indent);
+        System.out.println(currentRoot.node);
+
+        for(GraphNode child: currentRoot.children)
+        {
+            printTree(child, indent.concat("----"));
+        }
+
+        return 0;
+    }*/
 }
