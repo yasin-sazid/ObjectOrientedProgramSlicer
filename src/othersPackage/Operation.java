@@ -45,7 +45,7 @@ public class Operation {
     }
 
     public void parse(String str) {
-        ASTParser parser = ASTParser.newParser(AST.JLS3);
+        ASTParser parser = ASTParser.newParser(AST.JLS2);
         parser.setResolveBindings(true);
         parser.setSource(str.toCharArray());
         parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -60,7 +60,16 @@ public class Operation {
 
         cu.accept(new ASTVisitor() {
             public void preVisit (ASTNode node) {
+                //System.out.println(node.structuralPropertiesForType());
+                //System.out.println(node);
+            }
 
+            public boolean visit (TypeDeclaration node)
+            {
+                root.node = node;
+                //System.out.println("Type: " + node.getSuperclass());
+                System.out.println("Type: " + node.getName());
+                return true;
             }
 
             public boolean visit (IfStatement node) {
@@ -846,7 +855,9 @@ public class Operation {
                 {
                     startingNode = node;
                     GraphNode foundNode = getStartingNode(root);
-                    System.out.println(foundNode.node);
+                    //System.out.println(foundNode.node);
+                    System.out.print("Line Number: ");
+                    System.out.println(((CompilationUnit) foundNode.node.getRoot()).getLineNumber(foundNode.node.getStartPosition()));
                     recursionForBackwardSlicing(foundNode);
                     recursionForForwardSlicing(foundNode);
                     System.out.println("Backward slicing:");
@@ -880,14 +891,14 @@ public class Operation {
             e.printStackTrace();
         }
 
-        try {
+        /*try {
             parser(readFileToString(filePath));
 
             //kut(root);
 
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
         /*for(ASTNode n : nodes)
         {
