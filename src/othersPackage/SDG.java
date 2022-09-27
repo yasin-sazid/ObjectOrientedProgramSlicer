@@ -1,6 +1,8 @@
 package othersPackage;
 
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,9 +38,44 @@ public class SDG
             classRoot.getParents().add(sdgRoot);
         }
 
-        for (GraphNode classRoot: sdgRoot.children)
+        for (GraphNode classRoot: classRoots)
+        {
+            for (GraphNode classRoot2: classRoots)
+            {
+                System.out.println(classRoot.node);
+                System.out.println(classRoot2.node);
+                System.out.println("--------------");
+                if (((TypeDeclaration) classRoot.getNode()).getSuperclassType()!=null)
+                {
+                    System.out.println("Dhukesi1");
+                    String cRsuperclass = ((TypeDeclaration) classRoot.getNode()).getSuperclassType().toString();
+                    String cR2class = ((TypeDeclaration)classRoot2.getNode()).getName().toString();
+
+                    System.out.println(cRsuperclass);
+                    System.out.println(cR2class);
+
+                    if (cRsuperclass.equals(cR2class))
+                    {
+                        /*for (GraphNode node: classRoot2.children)
+                        {
+                            if (node.getNode())
+                        }*/
+                    }
+                }
+            }
+        }
+
+
+
+        //debug system->class->method
+        /*for (GraphNode classRoot: sdgRoot.children)
         {
             System.out.println(classRoot.node);
-        }
+
+            for (GraphNode methodRoot: classRoot.children)
+            {
+                System.out.println(methodRoot.node);
+            }
+        }*/
     }
 }

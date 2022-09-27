@@ -1,6 +1,7 @@
 package othersPackage;
 
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 //import org.eclipse.jdt.core.dom.*;
 
 import java.io.BufferedReader;
@@ -45,7 +46,7 @@ public class Operation {
     }
 
     public void parse(String str) {
-        ASTParser parser = ASTParser.newParser(AST.JLS2);
+        ASTParser parser = ASTParser.newParser(AST.JLS3);
         parser.setResolveBindings(true);
         parser.setSource(str.toCharArray());
         parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -67,8 +68,9 @@ public class Operation {
             public boolean visit (TypeDeclaration node)
             {
                 root.node = node;
-                //System.out.println("Type: " + node.getSuperclass());
-                System.out.println("Type: " + node.getName());
+                //System.out.println("Type: " + node.getSuperclassType());
+                //System.out.println("Type: " + node.getName());
+
                 return true;
             }
 
