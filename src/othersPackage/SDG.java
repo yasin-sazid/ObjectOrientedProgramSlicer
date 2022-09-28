@@ -42,24 +42,43 @@ public class SDG
         {
             for (GraphNode classRoot2: classRoots)
             {
-                System.out.println(classRoot.node);
+                /*System.out.println(classRoot.node);
                 System.out.println(classRoot2.node);
-                System.out.println("--------------");
+                System.out.println("--------------");*/
                 if (((TypeDeclaration) classRoot.getNode()).getSuperclassType()!=null)
                 {
-                    System.out.println("Dhukesi1");
+                    //System.out.println("Dhukesi1");
                     String cRsuperclass = ((TypeDeclaration) classRoot.getNode()).getSuperclassType().toString();
                     String cR2class = ((TypeDeclaration)classRoot2.getNode()).getName().toString();
 
-                    System.out.println(cRsuperclass);
-                    System.out.println(cR2class);
+                    /*System.out.println(cRsuperclass);
+                    System.out.println(cR2class);*/
 
                     if (cRsuperclass.equals(cR2class))
                     {
-                        /*for (GraphNode node: classRoot2.children)
+                        for (GraphNode node: classRoot2.children)
                         {
-                            if (node.getNode())
-                        }*/
+                            if (((MethodDeclaration)node.node).isConstructor())
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                int isInheritedClass = 1;
+                                for (MethodDeclaration m: ((TypeDeclaration) classRoot.getNode()).getMethods())
+                                {
+                                    if (((MethodDeclaration)node.node).getName().equals(m.getName()))
+                                    {
+                                        isInheritedClass = 0;
+                                    }
+                                }
+
+                                if (isInheritedClass==1)
+                                {
+                                    System.out.println(((MethodDeclaration)node.node).getName());
+                                }
+                            }
+                        }
                     }
                 }
             }
