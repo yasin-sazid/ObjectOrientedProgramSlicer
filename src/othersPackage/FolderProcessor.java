@@ -8,6 +8,7 @@ public class FolderProcessor
 {
     private File folder;
     private List<File> files = new ArrayList<>();
+    private List<String> environment = new ArrayList<>();
 
     public FolderProcessor(String folderPath) {
         this.folder = new File(folderPath);
@@ -23,6 +24,7 @@ public class FolderProcessor
             if (file.isFile()) {
                 if (file.getAbsolutePath().substring(file.getAbsolutePath().length()-5,file.getAbsolutePath().length()).equals(".java"))
                 {
+                    environment.add(file.getAbsolutePath());
                     files.add(file);
                 }
             }
@@ -35,5 +37,9 @@ public class FolderProcessor
 
     public List<File> getFiles() {
         return files;
+    }
+
+    public String[] getEnvironment() {
+        return environment.toArray(new String[0]);
     }
 }

@@ -12,6 +12,7 @@ import java.util.*;
 public class Operation {
 
     public GraphNode root;
+    public String [] environment;
     Stack<GraphNode> graphNodeStack = new Stack<GraphNode> ();
     Set<GraphNode> assertNodeSet = new HashSet<>();
     Set<GraphNode> tryBodySet = new HashSet<>();
@@ -27,6 +28,10 @@ public class Operation {
     ASTNode startingNode;
     Set<ASTNode> nodesForBackwardSlicing = new TreeSet<>(Comparator.comparing(ASTNode::getStartPosition));
     Set<ASTNode> nodesForForwardSlicing = new TreeSet<>(Comparator.comparing(ASTNode::getStartPosition));
+
+    public Operation(String[] environment) {
+        this.environment = environment;
+    }
 
     public String readFileToString(String filePath) throws IOException {
         StringBuilder fileData = new StringBuilder(1000);
@@ -48,10 +53,11 @@ public class Operation {
     public void parse(String str) {
         ASTParser parser = ASTParser.newParser(AST.JLS3);
         parser.setResolveBindings(true);
+        parser.setBindingsRecovery(true);
         parser.setSource(str.toCharArray());
         parser.setKind(ASTParser.K_COMPILATION_UNIT);
-        //parser.setEnvironment(new String[] {"C:\\Users\\ASUS\\Desktop\\demo\\out\\production\\demo"}, new String[] {"C:\\Users\\ASUS\\Desktop\\demo\\src"}, null, true);
-        parser.setEnvironment(null, null, null, true);
+        parser.setEnvironment(new String[] {"C:\\Users\\yasinsazid\\Desktop\\MonacoFX-Tutorials-master\\Demo\\out\\production\\Demo\\sourcePackage"}, new String[] {"C:\\Users\\yasinsazid\\Desktop\\MonacoFX-Tutorials-master\\Demo\\src\\sourcePackage"}, null, true);
+        //parser.setEnvironment(null, null, null, true);
         parser.setUnitName("Saal.java");
         final CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 
@@ -68,8 +74,11 @@ public class Operation {
             public boolean visit (TypeDeclaration node)
             {
                 root.node = node;
-                //System.out.println("Type: " + node.getSuperclassType());
-                //System.out.println("Type: " + node.getName());
+                //System.out.println(node.resolveBinding());
+                if (node.getSuperclassType()!=null){
+                    /*System.out.println("SuperClassType: " + node.getSuperclassType());
+                    System.out.println("SuperClassTypeBinding: " + node.getSuperclassType().resolveBinding());*/
+                }
 
                 return true;
             }
@@ -484,7 +493,10 @@ public class Operation {
                         else
                         {
                             //System.out.println(child);
-                            setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
+                            if (!(child.resolveBinding() instanceof ITypeBinding))
+                            {
+                                setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
+                            }
                         }
                         return true;
                     }
@@ -668,7 +680,6 @@ public class Operation {
 
             public boolean visit (MethodInvocation node) {
 
-                //System.out.println(node);
                 List<Expression> list = node.arguments();
                 //System.out.println(list);
                 for(Expression e : list)
@@ -696,6 +707,9 @@ public class Operation {
             public void endVisit (MethodInvocation node) {
 
                 IMethodBinding bind = node.resolveMethodBinding();
+                System.out.println("Start Work From Line 710 in Operation");
+                /*System.out.println(node.getExpression().resolveTypeBinding().getName());
+                System.out.println(node.resolveMethodBinding());*/
 
                 if (mapForMethodInvocationBinding.containsKey(bind))
                 {
@@ -843,10 +857,11 @@ public class Operation {
 
         ASTParser parser = ASTParser.newParser(AST.JLS3);
         parser.setResolveBindings(true);
+        parser.setBindingsRecovery(true);
         parser.setSource(str.toCharArray());
         parser.setKind(ASTParser.K_COMPILATION_UNIT);
-        //parser.setEnvironment(new String[] {"C:\\Users\\ASUS\\Desktop\\demo\\out\\production\\demo"}, new String[] {"C:\\Users\\ASUS\\Desktop\\demo\\src"}, null, true);
-        parser.setEnvironment(null, null, null, true);
+        parser.setEnvironment(new String[] {"C:\\Users\\yasinsazid\\Desktop\\MonacoFX-Tutorials-master\\Demo\\out\\production\\Demo\\sourcePackage"}, new String[] {"C:\\Users\\yasinsazid\\Desktop\\MonacoFX-Tutorials-master\\Demo\\src\\sourcePackage"}, null, true);
+        //parser.setEnvironment(null, null, null, true);
         parser.setUnitName("Saal.java");
         final CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 

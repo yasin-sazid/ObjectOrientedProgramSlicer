@@ -20,24 +20,11 @@ public class SDG
         this.sdgRoot = new GraphNode();
     }
 
-    public void operations ()
-    {
-        FolderProcessor folderProcessor = new FolderProcessor("src/sourcePackage");
+    public void handleClassInteractions() {
 
-        for (File javaFile: folderProcessor.getFiles())
-        {
-            System.out.println(javaFile);
-            Operation op = new Operation();
-            op.operations(javaFile.getAbsolutePath());
-            classRoots.add(op.root);
-        }
+    }
 
-        for (GraphNode classRoot: classRoots)
-        {
-            sdgRoot.getChildren().add(classRoot);
-            classRoot.getParents().add(sdgRoot);
-        }
-
+    public void handleDerivedClasses() {
         for (GraphNode classRoot: classRoots)
         {
             for (GraphNode classRoot2: classRoots)
@@ -75,7 +62,10 @@ public class SDG
 
                                 if (isInheritedClass==1)
                                 {
-                                    System.out.println(((MethodDeclaration)node.node).getName());
+                                    /*System.out.println(classRoot.node);
+                                    System.out.println(node.node);*/
+                                    classRoot.children.add(node);
+                                    node.parents.add(classRoot);
                                 }
                             }
                         }
@@ -83,8 +73,27 @@ public class SDG
                 }
             }
         }
+    }
 
+    public void operations ()
+    {
+        FolderProcessor folderProcessor = new FolderProcessor("C:\\Users\\yasinsazid\\Desktop\\MonacoFX-Tutorials-master\\Demo\\src\\sourcePackage");
 
+        for (File javaFile: folderProcessor.getFiles())
+        {
+            System.out.println(javaFile);
+            Operation op = new Operation(folderProcessor.getEnvironment());
+            op.operations(javaFile.getAbsolutePath());
+            classRoots.add(op.root);
+        }
+
+        for (GraphNode classRoot: classRoots)
+        {
+            sdgRoot.getChildren().add(classRoot);
+            classRoot.getParents().add(sdgRoot);
+        }
+
+        handleDerivedClasses();
 
         //debug system->class->method
         /*for (GraphNode classRoot: sdgRoot.children)
