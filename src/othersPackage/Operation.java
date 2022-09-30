@@ -19,6 +19,11 @@ public class Operation {
     Map<IVariableBinding,Set<GraphNode>> mapForVariableBinding = new HashMap<>();
     Map<IMethodBinding,Set<GraphNode>> mapForMethodInvocationBinding = new HashMap<>();
     Map<IMethodBinding,GraphNode> mapForMethodDeclarationBinding = new HashMap<>();
+
+    Map<IMethodBinding,Set<GraphNode>> mapForMethodReturnBinding = new HashMap<>();
+
+    IMethodBinding methodBinding;
+
     int i = 0;
     int marker = 0;
     int marking = 0;
@@ -349,6 +354,32 @@ public class Operation {
                 }
                 if(marker == 1)
                     tryBodySet.add(temp);
+
+                if (mapForMethodReturnBinding.containsKey(methodBinding))
+                {
+                    mapForMethodReturnBinding.get(methodBinding).add(temp);
+                }
+                else
+                {
+                    Set<GraphNode> set = new HashSet<>();
+                    set.add(temp);
+                    mapForMethodReturnBinding.put(methodBinding, set);
+                }
+
+                //mapForMethodReturnBinding.put(methodBinding, temp);
+
+                if (mapForMethodInvocationBinding.containsKey(methodBinding))
+                {
+                    for(GraphNode g : mapForMethodInvocationBinding.get(methodBinding))
+                    {
+                        for(GraphNode n : mapForMethodReturnBinding.get(methodBinding))
+                        {
+                            n.children.add(g);
+                            g.parents.add(n);
+                        }
+                    }
+                }
+
                 return false;
             }
 
@@ -738,6 +769,18 @@ public class Operation {
                     }
                 }
 
+                if (mapForMethodReturnBinding.containsKey(bind))
+                {
+                    for(GraphNode g : mapForMethodInvocationBinding.get(bind))
+                    {
+                        for(GraphNode n : mapForMethodReturnBinding.get(bind))
+                        {
+                            n.children.add(g);
+                            g.parents.add(n);
+                        }
+                    }
+                }
+
                 //System.out.println(node);
                 for (IVariableBinding v : setOfVariableBinding)
                 {
@@ -754,6 +797,8 @@ public class Operation {
             public boolean visit (MethodDeclaration node) {
                 //setOfMethodBinding.add((IMethodBinding) node.resolveBinding());
                 //System.out.println(node);
+
+                methodBinding = node.resolveBinding();
 
                 GraphNode temp;
                 temp = new GraphNode(node);
@@ -826,20 +871,49 @@ public class Operation {
 
         for(GraphNode gg : g.children)
         {
-            recursionForForwardSlicing(gg);
+            int pickNode = 1;
+            for (ASTNode fs: nodesForForwardSlicing)
+            {
+                if (gg.node.toString().equals(fs.toString())&&gg.node.getStartPosition()==fs.getStartPosition())
+                {
+                    pickNode = 0;
+                }
+            }
+
+            if (pickNode == 1)
+            {
+                recursionForForwardSlicing(gg);
+            }
         }
     }
+
+    Set<GraphNode> visited = new HashSet<>();
 
     GraphNode getStartingNode (GraphNode node)
     {
         GraphNode foundStartingNode = null;
+
         for(GraphNode g : node.children)
         {
             if(g.node.toString().equals(startingNode.toString())&&g.node.getStartPosition()==startingNode.getStartPosition())
             {
                 return g;
             }
-            foundStartingNode = getStartingNode(g);
+
+            int pickNode = 1;
+            for (GraphNode n: visited)
+            {
+                if (g.node.toString().equals(n.node.toString())&&g.node.getStartPosition()==n.node.getStartPosition())
+                {
+                    pickNode = 0;
+                }
+            }
+
+            if (pickNode == 1)
+            {
+                visited.add(g);
+                foundStartingNode = getStartingNode(g);
+            }
 
             if(foundStartingNode!=null)
                 break;
@@ -853,10 +927,22 @@ public class Operation {
             return;
 
         nodesForBackwardSlicing.add(g.node);
+        //System.out.println(g.node);
 
         for(GraphNode gg : g.parents)
         {
-            recursionForBackwardSlicing(gg);
+            int pickNode = 1;
+            for (ASTNode bs: nodesForBackwardSlicing)
+            {
+                if (gg.node.toString().equals(bs.toString())&&gg.node.getStartPosition()==bs.getStartPosition())
+                {
+                    pickNode = 0;
+                }
+            }
+            if (pickNode == 1)
+            {
+                recursionForBackwardSlicing(gg);
+            }
         }
     }
 
@@ -899,6 +985,7 @@ public class Operation {
                     System.out.println("---------------------------------");
                     nodesForBackwardSlicing.clear();
                     nodesForForwardSlicing.clear();
+                    visited.clear();
                 }
             }
 
@@ -934,14 +1021,28 @@ public class Operation {
 
     }
 
+    public Set<GraphNode> v = new HashSet<>();
+
     public void printTree (GraphNode currentRoot, String indent)
     {
         System.out.print(indent);
         System.out.println(currentRoot.node);
+        v.add(currentRoot);
 
         for(GraphNode child: currentRoot.children)
         {
-            printTree(child, indent.concat("----"));
+            int pickNode = 1;
+            for (GraphNode g: v)
+            {
+                if (g.node.toString().equals(child.node.toString())&&g.node.getStartPosition()==child.node.getStartPosition())
+                {
+                    pickNode = 0;
+                }
+            }
+            if (pickNode == 1)
+            {
+                printTree(child, indent.concat("----"));
+            }
         }
     }
 
