@@ -51,13 +51,15 @@ public class Operation {
     }
 
     public void parse(String str) {
-        ASTParser parser = ASTParser.newParser(AST.JLS3);
+        ASTParser parser = ASTParser.newParser(AST.JLS_Latest);
         parser.setResolveBindings(true);
         parser.setBindingsRecovery(true);
         parser.setSource(str.toCharArray());
         parser.setKind(ASTParser.K_COMPILATION_UNIT);
-        parser.setEnvironment(new String[] {"C:\\Users\\yasinsazid\\Desktop\\MonacoFX-Tutorials-master\\Demo\\out\\production\\Demo\\sourcePackage"}, new String[] {"C:\\Users\\yasinsazid\\Desktop\\MonacoFX-Tutorials-master\\Demo\\src\\sourcePackage"}, null, true);
-        //parser.setEnvironment(null, null, null, true);
+        //investigate this
+        this.environment = new String[] {"C:\\Users\\yasinsazid\\Desktop\\MonacoFX-Tutorials-master\\Demo\\src\\sourcePackage"};
+        //parser.setEnvironment(new String[] {"C:\\Users\\yasinsazid\\Desktop\\MonacoFX-Tutorials-master\\Demo\\out\\production\\Demo\\sourcePackage"}, new String[] {"C:\\Users\\yasinsazid\\Desktop\\MonacoFX-Tutorials-master\\Demo\\src\\sourcePackage"}, null, true);
+        parser.setEnvironment(null, this.environment, null, true);
         parser.setUnitName("Saal.java");
         final CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 
@@ -493,7 +495,7 @@ public class Operation {
                         else
                         {
                             //System.out.println(child);
-                            if (!(child.resolveBinding() instanceof ITypeBinding))
+                            if (!(child.resolveBinding() instanceof ITypeBinding || child.resolveBinding() instanceof  IMethodBinding))
                             {
                                 setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
                             }
@@ -688,7 +690,10 @@ public class Operation {
                         public boolean visit (SimpleName child) {
                             //System.out.println(child);
                             //System.out.println(setOfVariableBinding.size());
-                            setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
+                            if (!(child.resolveBinding() instanceof ITypeBinding|| child.resolveBinding() instanceof IMethodBinding))
+                            {
+                                setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
+                            }
                             //System.out.println(setOfVariableBinding.size());
                             for (IVariableBinding v : setOfVariableBinding)
                             {
@@ -701,15 +706,17 @@ public class Operation {
                         }
                     });
                 }
-                return false;
+                return true;
             }
 
             public void endVisit (MethodInvocation node) {
 
                 IMethodBinding bind = node.resolveMethodBinding();
                 System.out.println("Start Work From Line 710 in Operation");
-                /*System.out.println(node.getExpression().resolveTypeBinding().getName());
-                System.out.println(node.resolveMethodBinding());*/
+                if (node.getExpression()!=null){
+                    //System.out.println(node.getExpression().resolveTypeBinding());
+                }
+                //System.out.println(node);
 
                 if (mapForMethodInvocationBinding.containsKey(bind))
                 {
@@ -908,14 +915,14 @@ public class Operation {
             e.printStackTrace();
         }
 
-        /*try {
+        try {
             parser(readFileToString(filePath));
 
             //kut(root);
 
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
 
         /*for(ASTNode n : nodes)
         {
