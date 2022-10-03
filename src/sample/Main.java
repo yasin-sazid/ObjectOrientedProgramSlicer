@@ -84,28 +84,6 @@ public class Main extends Application {
                 // add line numbers to the left of area
                 codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
 
-                // Create action event
-                EventHandler<ActionEvent> event =
-                        new EventHandler<ActionEvent>() {
-                            public void handle(ActionEvent e)
-                            {
-                                String [] lines = folderProcessor.getPathCodeMap().get(combo_box.getValue());
-
-                                codeArea.clear();
-
-                                for (int i=0; i<lines.length; i++)
-                                {
-                                    codeArea.replace(codeArea.getLength(), codeArea.getLength(), lines[i], "");
-                                    codeArea.replace(codeArea.getLength(), codeArea.getLength(), "\n", "");
-                                }
-                                //selected.setText((String) combo_box.getValue());
-                                //codeArea.replace(0, 0, folderProcessor.getPathCodeMap().get(combo_box.getValue()),"");
-                            }
-                        };
-
-                // Set on action
-                combo_box.setOnAction(event);
-
 
                 // auto-indent: insert previous line's indents on enter
                 final Pattern whiteSpace = Pattern.compile( "^\\s+" );
@@ -126,10 +104,152 @@ public class Main extends Application {
 
         codeArea.replace(1, 1, sampleCode, "-rtfx-background-color: white;");*/
 
+                TextField lineNumber = new TextField("Enter Line Number");
+
+                Button slicer = new Button("Slice Project");
+                slicer.setOnAction(slicingEvent -> {
+                    //System.out.println(lineNumber.getCharacters().toString());
+
+                    String criterionInput = lineNumber.getCharacters().toString();
+
+                    try {
+
+                        int criterionLineNumber = Integer.parseInt(criterionInput);
+
+                        ComboBox combo_box2 =
+                                new ComboBox(FXCollections
+                                        .observableArrayList(folderProcessor.getPathCodeMap().keySet().toArray()));
+
+                        // Label to display the selected menuitem
+                        //Label selected = new Label((String) folderProcessor.getPathCodeMap().keySet().toArray()[0]);
+
+                        String selected2 = combo_box.getValue().toString();
+                        combo_box2.setValue(selected2);
+
+                        InlineCssTextArea codeArea2 = new InlineCssTextArea();
+
+                        codeArea2.setPrefSize(500, 500);
+                        combo_box2.setPrefWidth(500);
+
+                        String [] lines2 = folderProcessor.getPathCodeMap().get(selected2);
+
+                        for (int i=0; i<lines2.length; i++)
+                        {
+                            if (i+1==criterionLineNumber)
+                            {
+                                codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
+                                codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                            }
+                            else
+                            {
+                                codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
+                                codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                            }
+                        }
+
+                        // add line numbers to the left of area
+                        codeArea2.setParagraphGraphicFactory(LineNumberFactory.get(codeArea2));
+
+                        // Create action event
+                        EventHandler<ActionEvent> event2 =
+                                new EventHandler<ActionEvent>() {
+                                    public void handle(ActionEvent e)
+                                    {
+                                        String [] lines2 = folderProcessor.getPathCodeMap().get(combo_box2.getValue());
+
+                                        codeArea2.clear();
+
+                                        for (int i=0; i<lines2.length; i++)
+                                        {
+                                            codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "");
+                                            codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                        }
+                                        //selected.setText((String) combo_box.getValue());
+                                        //codeArea.replace(0, 0, folderProcessor.getPathCodeMap().get(combo_box.getValue()),"");
+                                    }
+                                };
+
+                        // Set on action
+                        combo_box2.setOnAction(event2);
+
+
+                        // auto-indent: insert previous line's indents on enter
+                        final Pattern whiteSpace2 = Pattern.compile( "^\\s+" );
+                        codeArea2.addEventHandler( KeyEvent.KEY_PRESSED, KE ->
+                        {
+                            if ( KE.getCode() == KeyCode.ENTER ) {
+                                int caretPosition = codeArea2.getCaretPosition();
+                                int currentParagraph = codeArea2.getCurrentParagraph();
+                                Matcher m0 = whiteSpace2.matcher( codeArea2.getParagraph( currentParagraph-1 ).getSegments().get( 0 ) );
+                                if ( m0.find() ) Platform.runLater( () -> codeArea2.insertText( caretPosition, m0.group() ) );
+                            }
+                        });
+
+
+                        codeArea2.getStylesheets().add("java-keywords.css");
+
+                        GridPane root = new GridPane();
+                        root.add(combo_box, 0, 0);
+                        root.add(new VirtualizedScrollPane<>(codeArea), 0, 1);
+                        root.add(combo_box2, 1, 0);
+                        root.add(new VirtualizedScrollPane<>(codeArea2), 1, 1);
+
+                        Scene scene = new Scene(root, 1000, 500);
+
+                        scene.getStylesheets().add("java-keywords.css");
+                        primaryStage.setScene(scene);
+                        primaryStage.setTitle("Java Keywords Demo");
+                        primaryStage.show();
+                    }
+                    catch (NumberFormatException ex)
+                    {
+                        Alert a = new Alert(Alert.AlertType.ERROR);
+                        a.setContentText("Please input a valid integer line number");
+                        a.show();
+                    }
+                });
+
+                // Create action event
+                EventHandler<ActionEvent> event =
+                        new EventHandler<ActionEvent>() {
+                            public void handle(ActionEvent e)
+                            {
+                                String [] lines = folderProcessor.getPathCodeMap().get(combo_box.getValue());
+
+                                codeArea.clear();
+
+                                for (int i=0; i<lines.length; i++)
+                                {
+                                    codeArea.replace(codeArea.getLength(), codeArea.getLength(), lines[i], "");
+                                    codeArea.replace(codeArea.getLength(), codeArea.getLength(), "\n", "");
+                                }
+                                //selected.setText((String) combo_box.getValue());
+                                //codeArea.replace(0, 0, folderProcessor.getPathCodeMap().get(combo_box.getValue()),"");
+
+                                GridPane root = new GridPane();
+                                root.add(combo_box, 0, 0);
+                                root.add(new VirtualizedScrollPane<>(codeArea), 0, 1);
+                                root.add(lineNumber, 1, 1);
+                                root.add(slicer, 2, 1);
+
+                                Scene scene = new Scene(root, 1000, 500);
+
+                                scene.getStylesheets().add("java-keywords.css");
+                                primaryStage.setScene(scene);
+                                primaryStage.setTitle("Java Keywords Demo");
+                                primaryStage.show();
+                            }
+                        };
+
+                // Set on action
+                combo_box.setOnAction(event);
+
 
                 GridPane root = new GridPane();
                 root.add(combo_box, 0, 0);
                 root.add(new VirtualizedScrollPane<>(codeArea), 0, 1);
+                root.add(lineNumber, 1, 1);
+                root.add(slicer, 2, 1);
 
                 Scene scene = new Scene(root, 1000, 500);
 
