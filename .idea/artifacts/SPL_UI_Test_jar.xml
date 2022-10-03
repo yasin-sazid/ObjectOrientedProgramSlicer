@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="SPL-UI-Test:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/SPL_UI_Test_jar</output-path>
+    <output-path>$PROJECT_DIR$</output-path>
     <root id="archive" name="SPL-UI-Test.jar">
       <element id="module-output" name="resources" />
       <element id="module-output" name="SPL-UI-Test" />
