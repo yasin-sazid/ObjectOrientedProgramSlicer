@@ -58,16 +58,17 @@ public class SDG
                             }
                             else
                             {
-                                int isInheritedClass = 1;
+                                int isInheritedMethod = 1;
                                 for (MethodDeclaration m: ((TypeDeclaration) classRoot.getNode()).getMethods())
                                 {
-                                    if (((MethodDeclaration)node.node).getName().equals(m.getName()))
+                                    if ((((MethodDeclaration)node.node).getName().toString()).equals(m.getName().toString()))
                                     {
-                                        isInheritedClass = 0;
+                                        isInheritedMethod = 0;
+                                        break;
                                     }
                                 }
 
-                                if (isInheritedClass==1)
+                                if (isInheritedMethod==1)
                                 {
                                     /*System.out.println(classRoot.node);
                                     System.out.println(node.node);*/
