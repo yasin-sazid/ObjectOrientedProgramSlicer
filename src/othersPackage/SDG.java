@@ -1,28 +1,35 @@
 package othersPackage;
 
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.*;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
 
 public class SDG
 {
-    public GraphNode sdgRoot;
+    private String projectPath;
+    private int criterionLineNumber;
+    private String criterionFilePath;
+
+    public GraphNode sdgRoot = new GraphNode();
     public List<GraphNode> classRoots = new ArrayList<>();
-    Map<ITypeBinding,GraphNode> mapForClassBinding = new HashMap<>();
+    Map<String,GraphNode> mapForPathClassRoot = new HashMap<>();
 
-    public SDG() {
-        this.sdgRoot = new GraphNode();
+    public SDG(String projectPath, String criterionFilePath, int criterionLineNumber) {
+        this.projectPath = projectPath;
+        this.criterionFilePath = criterionFilePath;
+        this.criterionLineNumber = criterionLineNumber;
     }
 
-    public void handleClassInteractions() {
+    ASTNode startingNode;
+    Set<ASTNode> nodesForBackwardSlicing = new TreeSet<>(Comparator.comparing(ASTNode::getStartPosition));
+    Set<ASTNode> nodesForForwardSlicing = new TreeSet<>(Comparator.comparing(ASTNode::getStartPosition));
 
-    }
+    Map<String,Set<Integer>> forwardSlicingMapForClassLineNumbers = new HashMap<>();
+    Map<String,Set<Integer>> backwardSlicingMapForClassLineNumbers = new HashMap<>();
 
     public void handleDerivedClasses() {
         for (GraphNode classRoot: classRoots)
@@ -75,9 +82,10 @@ public class SDG
         }
     }
 
-    public void operations ()
-    {
-        FolderProcessor folderProcessor = new FolderProcessor("C:\\Users\\yasinsazid\\Desktop\\MonacoFX-Tutorials-master\\Demo\\src\\sourcePackage");
+    FolderProcessor folderProcessor;
+
+    public void operations () throws IOException {
+        folderProcessor = new FolderProcessor(projectPath);
 
         for (File javaFile: folderProcessor.getFiles())
         {
@@ -85,6 +93,7 @@ public class SDG
             Operation op = new Operation(folderProcessor.getEnvironment());
             op.operations(javaFile.getAbsolutePath());
             classRoots.add(op.root);
+            mapForPathClassRoot.put(javaFile.getAbsolutePath(), op.root);
         }
 
         for (GraphNode classRoot: classRoots)
@@ -95,6 +104,8 @@ public class SDG
 
         handleDerivedClasses();
 
+
+
         //debug system->class->method
         /*for (GraphNode classRoot: sdgRoot.children)
         {
@@ -104,6 +115,205 @@ public class SDG
             {
                 System.out.println(methodRoot.node);
             }
-        }*/
+        }
+
+        System.out.println("-----------------");*/
+
+        parser();
+    }
+
+    void recursionForForwardSlicing (GraphNode g)
+    {
+        /*if(g==null)
+            return;*/
+
+        if (forwardSlicingMapForClassLineNumbers.containsKey(g.classFilePath))
+        {
+            forwardSlicingMapForClassLineNumbers.get(g.classFilePath).add(((CompilationUnit) g.node.getRoot()).getLineNumber(g.node.getStartPosition()));
+        }
+        else
+        {
+            Set<Integer> tempSet = new TreeSet<>(Comparator.comparing(Integer::intValue));
+            tempSet.add(((CompilationUnit) g.node.getRoot()).getLineNumber(g.node.getStartPosition()));
+            forwardSlicingMapForClassLineNumbers.put(g.classFilePath, tempSet);
+        }
+
+        nodesForForwardSlicing.add(g.node);
+
+        for(GraphNode gg : g.children)
+        {
+            int pickNode = 1;
+            for (ASTNode fs: nodesForForwardSlicing)
+            {
+                if (gg.node.toString().equals(fs.toString())&&gg.node.getStartPosition()==fs.getStartPosition())
+                {
+                    pickNode = 0;
+                }
+            }
+
+            if (pickNode == 1)
+            {
+                recursionForForwardSlicing(gg);
+            }
+        }
+    }
+
+    Set<GraphNode> visited = new HashSet<>();
+
+    GraphNode getStartingNode (GraphNode node)
+    {
+        GraphNode foundStartingNode = null;
+
+        //System.out.println(node.node);
+        for(GraphNode g : node.children)
+        {
+            if(g.node.toString().equals(startingNode.toString())&&g.node.getStartPosition()==startingNode.getStartPosition())
+            {
+                return g;
+            }
+
+            int pickNode = 1;
+            for (GraphNode n: visited)
+            {
+                if (g.node.toString().equals(n.node.toString())&&g.node.getStartPosition()==n.node.getStartPosition())
+                {
+                    pickNode = 0;
+                }
+            }
+
+            if (pickNode == 1)
+            {
+                visited.add(g);
+                foundStartingNode = getStartingNode(g);
+            }
+
+            if(foundStartingNode!=null)
+                break;
+        }
+        return foundStartingNode;
+    }
+
+    void recursionForBackwardSlicing (GraphNode g)
+    {
+        if (backwardSlicingMapForClassLineNumbers.containsKey(g.classFilePath))
+        {
+            backwardSlicingMapForClassLineNumbers.get(g.classFilePath).add(((CompilationUnit) g.node.getRoot()).getLineNumber(g.node.getStartPosition()));
+        }
+        else
+        {
+            Set<Integer> tempSet = new TreeSet<>(Comparator.comparing(Integer::intValue));
+            tempSet.add(((CompilationUnit) g.node.getRoot()).getLineNumber(g.node.getStartPosition()));
+            backwardSlicingMapForClassLineNumbers.put(g.classFilePath, tempSet);
+        }
+        nodesForBackwardSlicing.add(g.node);
+
+        if(classRoots.contains(g))
+        {
+            return;
+        }
+
+        for(GraphNode gg : g.parents)
+        {
+            int pickNode = 1;
+            for (ASTNode bs: nodesForBackwardSlicing)
+            {
+                //System.out.println(bs.toString());
+                //System.out.println(gg.node.toString());
+                if (gg.node.toString().equals(bs.toString())&&gg.node.getStartPosition()==bs.getStartPosition())
+                {
+                    pickNode = 0;
+                }
+            }
+            if (pickNode == 1)
+            {
+                recursionForBackwardSlicing(gg);
+            }
+        }
+    }
+
+    public String readFileToString(String filePath) throws IOException {
+        StringBuilder fileData = new StringBuilder(1000);
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+
+        char[] buf = new char[10];
+        int numRead = 0;
+        while ((numRead = reader.read(buf)) != -1) {
+            String readData = String.valueOf(buf, 0, numRead);
+            fileData.append(readData);
+            buf = new char[1024];
+        }
+
+        reader.close();
+
+        return  fileData.toString();
+    }
+
+    public void parser () throws IOException {
+
+        GraphNode classRoot = mapForPathClassRoot.get(criterionFilePath);
+        //System.out.println(classRoot.node);
+
+        ASTParser parser = ASTParser.newParser(AST.JLS10);
+        parser.setResolveBindings(true);
+        parser.setBindingsRecovery(true);
+        parser.setSource(readFileToString(criterionFilePath).toCharArray());
+        parser.setKind(ASTParser.K_COMPILATION_UNIT);
+        parser.setEnvironment(null, folderProcessor.getEnvironment(), null, true);
+        //parser.setEnvironment(null, null, null, true);
+        parser.setUnitName("Saal.java");
+        final CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+
+        cu.accept(new ASTVisitor() {
+
+            public void preVisit (ASTNode node) {
+                if(node instanceof Statement && !(node instanceof Block))
+                {
+                    startingNode = node;
+
+                    if (((CompilationUnit) startingNode.getRoot()).getLineNumber(startingNode.getStartPosition())==criterionLineNumber)
+                    {
+                        GraphNode foundNode = getStartingNode(classRoot);
+                        //System.out.println(foundNode.node);
+                        System.out.print("Line Number: ");
+                        System.out.println(((CompilationUnit) foundNode.node.getRoot()).getLineNumber(foundNode.node.getStartPosition()));
+                        recursionForBackwardSlicing(foundNode);
+                        recursionForForwardSlicing(foundNode);
+                        System.out.println("Backward slicing:");
+                        for (String filePath: backwardSlicingMapForClassLineNumbers.keySet())
+                        {
+                            System.out.println(filePath);
+                            for (int lineNumber: backwardSlicingMapForClassLineNumbers.get(filePath))
+                            {
+                                System.out.println(lineNumber);
+                            }
+                        }
+                        /*for(ASTNode astNode: nodesForBackwardSlicing)
+                        {
+                            //System.out.println(astNode);
+                            System.out.println(((CompilationUnit) astNode.getRoot()).getLineNumber(astNode.getStartPosition()));
+                        }*/
+                        System.out.println("Forward slicing:");
+                        for (String filePath: forwardSlicingMapForClassLineNumbers.keySet())
+                        {
+                            System.out.println(filePath);
+                            for (int lineNumber: forwardSlicingMapForClassLineNumbers.get(filePath))
+                            {
+                                System.out.println(lineNumber);
+                            }
+                        }
+                        /*for(ASTNode astNode: nodesForForwardSlicing)
+                        {
+                            //System.out.println(astNode);
+                            System.out.println(((CompilationUnit) astNode.getRoot()).getLineNumber(astNode.getStartPosition()));
+                        }*/
+                        System.out.println("---------------------------------");
+                        nodesForBackwardSlicing.clear();
+                        nodesForForwardSlicing.clear();
+                        visited.clear();
+                    }
+                }
+            }
+
+        });
     }
 }

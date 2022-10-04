@@ -7,6 +7,7 @@ import java.util.Set;
 
 public class GraphNode {
 
+    public String classFilePath;
     public ASTNode node;
     public Set<GraphNode> parents;
     public Set<GraphNode> children;
@@ -44,5 +45,13 @@ public class GraphNode {
 
     public void setChildren(Set<GraphNode> children) {
         this.children = children;
+    }
+
+    public String getClassFilePath() {
+        return classFilePath;
+    }
+
+    public void setClassFilePath(String classFilePath) {
+        this.classFilePath = classFilePath;
     }
 }

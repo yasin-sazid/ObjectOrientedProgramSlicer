@@ -18,19 +18,21 @@ public class FolderProcessor
     public void getFilesFromFolder (File filePath)
     {
         //File folder = new File("C:\\Users\\yasinsazid\\Downloads\\ProgramSlicing-master\\ProgramSlicing\\src");
-        File[] listOfFiles = filePath.listFiles();
-
-        for (File file : listOfFiles) {
-            if (file.isFile()) {
-                if (file.getAbsolutePath().substring(file.getAbsolutePath().length()-5,file.getAbsolutePath().length()).equals(".java"))
-                {
-                    environment.add(file.getAbsolutePath());
-                    files.add(file);
+        if (filePath.isDirectory())
+        {
+            environment.add(filePath.getAbsolutePath());
+            File[] listOfFiles = filePath.listFiles();
+            for (File file : listOfFiles) {
+                if (file.isFile()) {
+                    if (file.getAbsolutePath().substring(file.getAbsolutePath().length()-5,file.getAbsolutePath().length()).equals(".java"))
+                    {
+                        files.add(file);
+                    }
                 }
-            }
-            else if (file.isDirectory())
-            {
-                getFilesFromFolder(file);
+                else if (file.isDirectory())
+                {
+                    getFilesFromFolder(file);
+                }
             }
         }
     }

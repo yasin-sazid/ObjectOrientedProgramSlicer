@@ -12,6 +12,7 @@ import java.util.*;
 public class Operation {
 
     public GraphNode root;
+    public String classFilePath;
     public String [] environment;
     Stack<GraphNode> graphNodeStack = new Stack<GraphNode> ();
     Set<GraphNode> assertNodeSet = new HashSet<>();
@@ -30,9 +31,6 @@ public class Operation {
     IVariableBinding s;
     public Set<IVariableBinding> setOfVariableBinding = new HashSet<>();
     public Set<IMethodBinding> setOfMethodBinding = new HashSet<>();
-    ASTNode startingNode;
-    Set<ASTNode> nodesForBackwardSlicing = new TreeSet<>(Comparator.comparing(ASTNode::getStartPosition));
-    Set<ASTNode> nodesForForwardSlicing = new TreeSet<>(Comparator.comparing(ASTNode::getStartPosition));
 
     public Operation(String[] environment) {
         this.environment = environment;
@@ -56,13 +54,13 @@ public class Operation {
     }
 
     public void parse(String str) {
-        ASTParser parser = ASTParser.newParser(AST.JLS_Latest);
+        ASTParser parser = ASTParser.newParser(AST.JLS10);
         parser.setResolveBindings(true);
         parser.setBindingsRecovery(true);
         parser.setSource(str.toCharArray());
         parser.setKind(ASTParser.K_COMPILATION_UNIT);
         //investigate this
-        this.environment = new String[] {"C:\\Users\\yasinsazid\\Desktop\\MonacoFX-Tutorials-master\\Demo\\src\\sourcePackage"};
+        /*this.environment = new String[] {"src\\sourcePackage"};*/
         //parser.setEnvironment(new String[] {"C:\\Users\\yasinsazid\\Desktop\\MonacoFX-Tutorials-master\\Demo\\out\\production\\Demo\\sourcePackage"}, new String[] {"C:\\Users\\yasinsazid\\Desktop\\MonacoFX-Tutorials-master\\Demo\\src\\sourcePackage"}, null, true);
         parser.setEnvironment(null, this.environment, null, true);
         parser.setUnitName("Saal.java");
@@ -70,6 +68,7 @@ public class Operation {
 
 
         root = new GraphNode();
+        root.classFilePath = classFilePath;
         graphNodeStack.push(root);
 
         cu.accept(new ASTVisitor() {
@@ -95,6 +94,7 @@ public class Operation {
                 //System.out.println(node);
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 graphNodeStack.push(temp);
@@ -112,6 +112,7 @@ public class Operation {
                 //System.out.println(node.getExpression());
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 graphNodeStack.push(temp);
@@ -129,6 +130,7 @@ public class Operation {
                 //System.out.println(node.getExpression());
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 graphNodeStack.push(temp);
@@ -146,6 +148,7 @@ public class Operation {
                 //System.out.println(node.getExpression());
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 graphNodeStack.push(temp);
@@ -163,6 +166,7 @@ public class Operation {
                 //System.out.println(node);
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 graphNodeStack.push(temp);
@@ -180,6 +184,7 @@ public class Operation {
                 //System.out.println(node);
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 graphNodeStack.push(temp);
@@ -197,6 +202,7 @@ public class Operation {
                 System.out.println(node);
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 graphNodeStack.push(temp);
@@ -215,6 +221,7 @@ public class Operation {
                 System.out.println(node);
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 graphNodeStack.push(temp);
@@ -232,6 +239,7 @@ public class Operation {
                 //System.out.println(node.getExpression());
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 graphNodeStack.push(temp);
@@ -252,6 +260,7 @@ public class Operation {
                 }*/
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 graphNodeStack.push(temp);
@@ -269,6 +278,7 @@ public class Operation {
                 marker = 0;
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 graphNodeStack.push(temp);
                 for(GraphNode g: assertNodeSet)
                 {
@@ -287,6 +297,7 @@ public class Operation {
                 //System.out.println(node);
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 graphNodeStack.add(temp);
@@ -313,6 +324,7 @@ public class Operation {
                 //System.out.println(node);
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 for(GraphNode g: assertNodeSet)
@@ -329,6 +341,7 @@ public class Operation {
                 //System.out.println(node);
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 for(GraphNode g: assertNodeSet)
@@ -345,6 +358,7 @@ public class Operation {
                 //System.out.println(node);
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 for(GraphNode g: assertNodeSet)
@@ -387,6 +401,7 @@ public class Operation {
                 //System.out.println(node);
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 for(GraphNode g: assertNodeSet)
@@ -403,6 +418,7 @@ public class Operation {
                 //System.out.println(node);
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 for(GraphNode g: assertNodeSet)
@@ -420,6 +436,7 @@ public class Operation {
                 //System.out.println(node);
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 temp.parents.add(graphNodeStack.peek());
                 graphNodeStack.peek().children.add(temp);
                 for(GraphNode g: assertNodeSet)
@@ -556,6 +573,7 @@ public class Operation {
 
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
                 //startingNode = temp.node;
 
                 temp.parents.add(graphNodeStack.peek());
@@ -743,6 +761,9 @@ public class Operation {
             public void endVisit (MethodInvocation node) {
 
                 IMethodBinding bind = node.resolveMethodBinding();
+
+                //System.out.println(node.getExpression().resolveTypeBinding());
+
                 System.out.println("Start Work From Line 710 in Operation");
                 if (node.getExpression()!=null){
                     //System.out.println(node.getExpression().resolveTypeBinding());
@@ -802,6 +823,7 @@ public class Operation {
 
                 GraphNode temp;
                 temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
 
                 IMethodBinding bind = node.resolveBinding();
 
@@ -862,148 +884,12 @@ public class Operation {
 
     }
 
-    void recursionForForwardSlicing (GraphNode g)
-    {
-        /*if(g==null)
-            return;*/
 
-        nodesForForwardSlicing.add(g.node);
-
-        for(GraphNode gg : g.children)
-        {
-            int pickNode = 1;
-            for (ASTNode fs: nodesForForwardSlicing)
-            {
-                if (gg.node.toString().equals(fs.toString())&&gg.node.getStartPosition()==fs.getStartPosition())
-                {
-                    pickNode = 0;
-                }
-            }
-
-            if (pickNode == 1)
-            {
-                recursionForForwardSlicing(gg);
-            }
-        }
-    }
-
-    Set<GraphNode> visited = new HashSet<>();
-
-    GraphNode getStartingNode (GraphNode node)
-    {
-        GraphNode foundStartingNode = null;
-
-        for(GraphNode g : node.children)
-        {
-            if(g.node.toString().equals(startingNode.toString())&&g.node.getStartPosition()==startingNode.getStartPosition())
-            {
-                return g;
-            }
-
-            int pickNode = 1;
-            for (GraphNode n: visited)
-            {
-                if (g.node.toString().equals(n.node.toString())&&g.node.getStartPosition()==n.node.getStartPosition())
-                {
-                    pickNode = 0;
-                }
-            }
-
-            if (pickNode == 1)
-            {
-                visited.add(g);
-                foundStartingNode = getStartingNode(g);
-            }
-
-            if(foundStartingNode!=null)
-                break;
-        }
-        return foundStartingNode;
-    }
-
-    void recursionForBackwardSlicing (GraphNode g)
-    {
-        if(g.equals(root))
-            return;
-
-        nodesForBackwardSlicing.add(g.node);
-        //System.out.println(g.node);
-
-        for(GraphNode gg : g.parents)
-        {
-            int pickNode = 1;
-            for (ASTNode bs: nodesForBackwardSlicing)
-            {
-                if (gg.node.toString().equals(bs.toString())&&gg.node.getStartPosition()==bs.getStartPosition())
-                {
-                    pickNode = 0;
-                }
-            }
-            if (pickNode == 1)
-            {
-                recursionForBackwardSlicing(gg);
-            }
-        }
-    }
-
-    public void parser (String str) {
-
-        ASTParser parser = ASTParser.newParser(AST.JLS3);
-        parser.setResolveBindings(true);
-        parser.setBindingsRecovery(true);
-        parser.setSource(str.toCharArray());
-        parser.setKind(ASTParser.K_COMPILATION_UNIT);
-        parser.setEnvironment(new String[] {"C:\\Users\\yasinsazid\\Desktop\\MonacoFX-Tutorials-master\\Demo\\out\\production\\Demo\\sourcePackage"}, new String[] {"C:\\Users\\yasinsazid\\Desktop\\MonacoFX-Tutorials-master\\Demo\\src\\sourcePackage"}, null, true);
-        //parser.setEnvironment(null, null, null, true);
-        parser.setUnitName("Saal.java");
-        final CompilationUnit cu = (CompilationUnit) parser.createAST(null);
-
-        cu.accept(new ASTVisitor() {
-
-            public void preVisit (ASTNode node) {
-                if(node instanceof Statement && !(node instanceof Block))
-                {
-                    startingNode = node;
-                    GraphNode foundNode = getStartingNode(root);
-                    //System.out.println(foundNode.node);
-                    System.out.print("Line Number: ");
-                    System.out.println(((CompilationUnit) foundNode.node.getRoot()).getLineNumber(foundNode.node.getStartPosition()));
-                    recursionForBackwardSlicing(foundNode);
-                    recursionForForwardSlicing(foundNode);
-                    System.out.println("Backward slicing:");
-                    for(ASTNode astNode: nodesForBackwardSlicing)
-                    {
-                        //System.out.println(astNode);
-                        System.out.println(((CompilationUnit) astNode.getRoot()).getLineNumber(astNode.getStartPosition()));
-                    }
-                    System.out.println("Forward slicing:");
-                    for(ASTNode astNode: nodesForForwardSlicing)
-                    {
-                        //System.out.println(astNode);
-                        System.out.println(((CompilationUnit) astNode.getRoot()).getLineNumber(astNode.getStartPosition()));
-                    }
-                    System.out.println("---------------------------------");
-                    nodesForBackwardSlicing.clear();
-                    nodesForForwardSlicing.clear();
-                    visited.clear();
-                }
-            }
-
-        });
-    }
 
     public void operations (String filePath) {
+        classFilePath = filePath;
         try {
             parse(readFileToString(filePath));
-
-            //kut(root);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            parser(readFileToString(filePath));
 
             //kut(root);
 

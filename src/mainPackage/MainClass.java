@@ -13,9 +13,9 @@ import othersPackage.*;
 
 public class MainClass {
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws IOException {
 
-        SDG sdg = new SDG();
+        SDG sdg = new SDG("C:\\Users\\Hp\\Desktop\\SPL-UI-Test\\src\\sourcePackage", "C:\\Users\\Hp\\Desktop\\SPL-UI-Test\\src\\sourcePackage\\Maths.java", 11);
 
         sdg.operations();
     }
