@@ -42,6 +42,8 @@ public class Main extends Application {
     Map<String, Set<Integer>> forwardSlicingMapForClassLineNumbers;
     Map<String,Set<Integer>> backwardSlicingMapForClassLineNumbers;
 
+    String slicingType = "Backward Slicing";
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -146,16 +148,35 @@ public class Main extends Application {
 
                         for (int i=0; i<lines2.length; i++)
                         {
-                            if (backwardSlicingMapForClassLineNumbers.get(selected2).contains(i+1))
+                            if (slicingType.equals("Backward Slicing"))
                             {
-                                codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
-                                codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                /*System.out.println(slicingType);
+                                System.out.println("dhukesi");*/
+                                if (backwardSlicingMapForClassLineNumbers.get(selected2).contains(i+1))
+                                {
+                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
+                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                }
+                                else
+                                {
+                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
+                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                }
                             }
-                            else
+                            if (slicingType.equals("Forward Slicing"))
                             {
-                                codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
-                                codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                if (forwardSlicingMapForClassLineNumbers.get(selected2).contains(i+1))
+                                {
+                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
+                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                }
+                                else
+                                {
+                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
+                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                }
                             }
+
                         }
 
                         // add line numbers to the left of area
@@ -172,12 +193,20 @@ public class Main extends Application {
 
                                         for (int i=0; i<lines2.length; i++)
                                         {
-                                            if (backwardSlicingMapForClassLineNumbers.containsKey(combo_box2.getValue()))
+                                            if (slicingType.equals("Backward Slicing"))
                                             {
-                                                if (backwardSlicingMapForClassLineNumbers.get(combo_box2.getValue()).contains(i+1))
+                                                if (backwardSlicingMapForClassLineNumbers.containsKey(combo_box2.getValue()))
                                                 {
-                                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
-                                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                                    if (backwardSlicingMapForClassLineNumbers.get(combo_box2.getValue()).contains(i+1))
+                                                    {
+                                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
+                                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                                    }
+                                                    else
+                                                    {
+                                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
+                                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                                    }
                                                 }
                                                 else
                                                 {
@@ -185,10 +214,26 @@ public class Main extends Application {
                                                     codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
                                                 }
                                             }
-                                            else
+                                            if (slicingType.equals("Forward Slicing"))
                                             {
-                                                codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
-                                                codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                                if (forwardSlicingMapForClassLineNumbers.containsKey(combo_box2.getValue()))
+                                                {
+                                                    if (forwardSlicingMapForClassLineNumbers.get(combo_box2.getValue()).contains(i+1))
+                                                    {
+                                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
+                                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                                    }
+                                                    else
+                                                    {
+                                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
+                                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
+                                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                                }
                                             }
                                         }
                                         //selected.setText((String) combo_box.getValue());
@@ -253,11 +298,30 @@ public class Main extends Application {
                                 //selected.setText((String) combo_box.getValue());
                                 //codeArea.replace(0, 0, folderProcessor.getPathCodeMap().get(combo_box.getValue()),"");
 
+                                ComboBox slicingOperation =
+                                        new ComboBox(FXCollections
+                                                .observableArrayList(new String[]{"Backward Slicing", "Forward Slicing"}));
+
+                                slicingOperation.setValue(slicingType);
+
+                                EventHandler<ActionEvent> selectSlicingOperation =
+                                        new EventHandler<ActionEvent>() {
+                                            public void handle(ActionEvent e)
+                                            {
+                                                slicingType = slicingOperation.getValue().toString();
+                                                //System.out.println(slicingType);
+                                            }
+                                        };
+
+                                slicingOperation.setOnAction(selectSlicingOperation);
+
+
                                 GridPane root = new GridPane();
                                 root.add(combo_box, 0, 0);
                                 root.add(new VirtualizedScrollPane<>(codeArea), 0, 1);
                                 root.add(lineNumber, 1, 1);
-                                root.add(slicer, 2, 1);
+                                root.add(slicingOperation, 2, 1);
+                                root.add(slicer, 3, 1);
 
                                 Scene scene = new Scene(root, 1000, 500);
 
@@ -272,11 +336,30 @@ public class Main extends Application {
                 combo_box.setOnAction(event);
 
 
+                ComboBox slicingOperation =
+                        new ComboBox(FXCollections
+                                .observableArrayList(new String[]{"Backward Slicing", "Forward Slicing"}));
+
+                slicingOperation.setValue(slicingType);
+
+                EventHandler<ActionEvent> selectSlicingOperation =
+                        new EventHandler<ActionEvent>() {
+                            public void handle(ActionEvent e)
+                            {
+                                slicingType = slicingOperation.getValue().toString();
+                                //System.out.println(slicingType);
+                            }
+                        };
+
+                slicingOperation.setOnAction(selectSlicingOperation);
+
+
                 GridPane root = new GridPane();
                 root.add(combo_box, 0, 0);
                 root.add(new VirtualizedScrollPane<>(codeArea), 0, 1);
                 root.add(lineNumber, 1, 1);
-                root.add(slicer, 2, 1);
+                root.add(slicingOperation, 2, 1);
+                root.add(slicer, 3, 1);
 
                 Scene scene = new Scene(root, 1000, 500);
 
