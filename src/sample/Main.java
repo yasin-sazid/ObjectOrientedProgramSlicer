@@ -146,10 +146,17 @@ public class Main extends Application {
 
                         try {
                             SDG sdg = new SDG(folderProcessor.getFolder().getAbsolutePath(), selected2, criterionLineNumber);
-                            backwardSlicingMapForClassLineNumbers = sdg.getBackwardSlicingMapForClassLineNumbers();
-                            forwardSlicingMapForClassLineNumbers = sdg.getForwardSlicingMapForClassLineNumbers();
+                            if (sdg.isValidCriterion())
+                            {
+                                backwardSlicingMapForClassLineNumbers = sdg.getBackwardSlicingMapForClassLineNumbers();
+                                forwardSlicingMapForClassLineNumbers = sdg.getForwardSlicingMapForClassLineNumbers();
+                            }
+                            else
+                            {
+                                throw new NumberFormatException("Invalid Criterion");
+                            }
                         } catch (IOException ex) {
-                            ex.printStackTrace();
+
                         }
 
                         combo_box2.setValue(selected2);
@@ -290,9 +297,18 @@ public class Main extends Application {
                     }
                     catch (NumberFormatException ex)
                     {
-                        Alert a = new Alert(Alert.AlertType.ERROR);
-                        a.setContentText("Please input a valid integer line number");
-                        a.show();
+                        if (ex.getMessage().equals("Invalid Criterion"))
+                        {
+                            Alert a = new Alert(Alert.AlertType.ERROR);
+                            a.setContentText("Please input a valid slicing criterion");
+                            a.show();
+                        }
+                        else
+                        {
+                            Alert a = new Alert(Alert.AlertType.ERROR);
+                            a.setContentText("Please input a valid integer line number");
+                            a.show();
+                        }
                     }
                 });
 

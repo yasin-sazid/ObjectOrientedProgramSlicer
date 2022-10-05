@@ -26,6 +26,8 @@ public class SDG
     public List<GraphNode> classRoots = new ArrayList<>();
     Map<String,GraphNode> mapForPathClassRoot = new HashMap<>();
 
+    public boolean isValidCriterion = false;
+
     public SDG(String projectPath, String criterionFilePath, int criterionLineNumber) throws IOException {
         this.projectPath = projectPath;
         this.criterionFilePath = criterionFilePath;
@@ -276,13 +278,22 @@ public class SDG
         cu.accept(new ASTVisitor() {
 
             public void preVisit (ASTNode node) {
-                if(node instanceof Statement && !(node instanceof Block))
+                if((node instanceof Statement && !(node instanceof Block))|| node instanceof TypeDeclaration || node instanceof MethodDeclaration)
                 {
                     startingNode = node;
 
                     if (((CompilationUnit) startingNode.getRoot()).getLineNumber(startingNode.getStartPosition())==criterionLineNumber)
                     {
-                        GraphNode foundNode = getStartingNode(classRoot);
+                        isValidCriterion = true;
+                        GraphNode foundNode;
+                        if (classRoot.node.toString().equals(startingNode.toString()))
+                        {
+                            foundNode = classRoot;
+                        }
+                        else
+                        {
+                            foundNode = getStartingNode(classRoot);
+                        }
                         //System.out.println(foundNode.node);
                         System.out.print("Line Number: ");
                         System.out.println(((CompilationUnit) foundNode.node.getRoot()).getLineNumber(foundNode.node.getStartPosition()));
@@ -325,5 +336,9 @@ public class SDG
             }
 
         });
+    }
+
+    public boolean isValidCriterion() {
+        return isValidCriterion;
     }
 }

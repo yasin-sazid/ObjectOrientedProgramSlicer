@@ -80,6 +80,7 @@ public class Operation {
             public boolean visit (TypeDeclaration node)
             {
                 root.node = node;
+                root.classFilePath = classFilePath;
                 //System.out.println(node.resolveBinding());
                 if (node.getSuperclassType()!=null){
                     /*System.out.println("SuperClassType: " + node.getSuperclassType());
