@@ -120,6 +120,21 @@ public class Main extends Application {
 
                         int criterionLineNumber = Integer.parseInt(criterionInput);
 
+                        codeArea.clear();
+                        for (int i=0; i<folderProcessor.getPathCodeMap().get(combo_box.getValue()).length; i++)
+                        {
+                            if (i+1==criterionLineNumber)
+                            {
+                                codeArea.replace(codeArea.getLength(), codeArea.getLength(), folderProcessor.getPathCodeMap().get(combo_box.getValue())[i], "-rtfx-background-color: red;");
+                                codeArea.replace(codeArea.getLength(), codeArea.getLength(), "\n", "");
+                            }
+                            else
+                            {
+                                codeArea.replace(codeArea.getLength(), codeArea.getLength(), folderProcessor.getPathCodeMap().get(combo_box.getValue())[i], "-rtfx-background-color: white;");
+                                codeArea.replace(codeArea.getLength(), codeArea.getLength(), "\n", "");
+                            }
+                        }
+
                         ComboBox combo_box2 =
                                 new ComboBox(FXCollections
                                         .observableArrayList(folderProcessor.getPathCodeMap().keySet().toArray()));
