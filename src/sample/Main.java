@@ -3,8 +3,7 @@ package sample;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -36,9 +35,12 @@ import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.collection.ListModification;
 import org.reactfx.Subscription;
+import othersPackage.SDG;
 
 public class Main extends Application {
 
+    Map<String, Set<Integer>> forwardSlicingMapForClassLineNumbers;
+    Map<String,Set<Integer>> backwardSlicingMapForClassLineNumbers;
 
     public static void main(String[] args) {
         launch(args);
@@ -124,6 +126,15 @@ public class Main extends Application {
                         //Label selected = new Label((String) folderProcessor.getPathCodeMap().keySet().toArray()[0]);
 
                         String selected2 = combo_box.getValue().toString();
+
+                        try {
+                            SDG sdg = new SDG(folderProcessor.getFolder().getAbsolutePath(), selected2, criterionLineNumber);
+                            backwardSlicingMapForClassLineNumbers = sdg.getBackwardSlicingMapForClassLineNumbers();
+                            forwardSlicingMapForClassLineNumbers = sdg.getForwardSlicingMapForClassLineNumbers();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+
                         combo_box2.setValue(selected2);
 
                         InlineCssTextArea codeArea2 = new InlineCssTextArea();
@@ -135,7 +146,7 @@ public class Main extends Application {
 
                         for (int i=0; i<lines2.length; i++)
                         {
-                            if (i+1==criterionLineNumber)
+                            if (backwardSlicingMapForClassLineNumbers.get(selected2).contains(i+1))
                             {
                                 codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
                                 codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
@@ -161,8 +172,24 @@ public class Main extends Application {
 
                                         for (int i=0; i<lines2.length; i++)
                                         {
-                                            codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "");
-                                            codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                            if (backwardSlicingMapForClassLineNumbers.containsKey(combo_box2.getValue()))
+                                            {
+                                                if (backwardSlicingMapForClassLineNumbers.get(combo_box2.getValue()).contains(i+1))
+                                                {
+                                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
+                                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                                }
+                                                else
+                                                {
+                                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
+                                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
+                                                codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                            }
                                         }
                                         //selected.setText((String) combo_box.getValue());
                                         //codeArea.replace(0, 0, folderProcessor.getPathCodeMap().get(combo_box.getValue()),"");

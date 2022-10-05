@@ -14,14 +14,23 @@ public class SDG
     private int criterionLineNumber;
     private String criterionFilePath;
 
+    public Map<String, Set<Integer>> getForwardSlicingMapForClassLineNumbers() {
+        return forwardSlicingMapForClassLineNumbers;
+    }
+
+    public Map<String, Set<Integer>> getBackwardSlicingMapForClassLineNumbers() {
+        return backwardSlicingMapForClassLineNumbers;
+    }
+
     public GraphNode sdgRoot = new GraphNode();
     public List<GraphNode> classRoots = new ArrayList<>();
     Map<String,GraphNode> mapForPathClassRoot = new HashMap<>();
 
-    public SDG(String projectPath, String criterionFilePath, int criterionLineNumber) {
+    public SDG(String projectPath, String criterionFilePath, int criterionLineNumber) throws IOException {
         this.projectPath = projectPath;
         this.criterionFilePath = criterionFilePath;
         this.criterionLineNumber = criterionLineNumber;
+        operations();
     }
 
     ASTNode startingNode;
