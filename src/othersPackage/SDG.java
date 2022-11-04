@@ -1,5 +1,6 @@
 package othersPackage;
 
+import org.eclipse.core.expressions.IVariableResolver;
 import org.eclipse.jdt.core.dom.*;
 
 import java.io.BufferedReader;
@@ -25,6 +26,8 @@ public class SDG
     public GraphNode sdgRoot = new GraphNode();
     public List<GraphNode> classRoots = new ArrayList<>();
     Map<String,GraphNode> mapForPathClassRoot = new HashMap<>();
+
+    Map<String,Set<GraphNode>> mapOfClassQualifiedNameToMethodGraphNodes = new HashMap<>();
 
     public boolean isValidCriterion = false;
 
@@ -94,6 +97,105 @@ public class SDG
         }
     }
 
+    public void handleClassInteractions ()
+    {
+        for (GraphNode classRoot : sdgRoot.getChildren())
+        {
+            for (GraphNode methodRoot : classRoot.getChildren())
+            {
+                for (GraphNode statementNode: methodRoot.getChildren())
+                {
+                    handleClassInteraction(statementNode);
+                }
+            }
+        }
+    }
+
+    public void handleClassInteraction (GraphNode currentNode)
+    {
+        if (currentNode.node instanceof Assignment)
+        {
+
+        }
+        else if (currentNode.node instanceof ClassInstanceCreation)
+        {
+            //System.out.println(((ClassInstanceCreation) currentNode.node).getExpression().resolveTypeBinding());
+            //System.out.println(((ClassInstanceCreation) currentNode.node).getExpression());
+            if(currentNode.node.getNodeType()==ASTNode.CLASS_INSTANCE_CREATION) {
+
+                String qualifiedClassName = ((ClassInstanceCreation) currentNode.node).getType().resolveBinding().getPackage().getName().toString()
+                        + '.' + ((ClassInstanceCreation) currentNode.node).getType().resolveBinding().getName();
+
+                if (mapOfClassQualifiedNameToMethodGraphNodes.containsKey(qualifiedClassName))
+                {
+                    for (GraphNode methodNode : mapOfClassQualifiedNameToMethodGraphNodes.get(qualifiedClassName))
+                    {
+                                /*System.out.println(methodNode.node);
+                                System.out.println(((MethodDeclaration) methodNode.node).getName().toString());
+                                System.out.println(((MethodInvocation) currentNode.node).getName());*/
+                        if (((MethodDeclaration) methodNode.node).getName().toString().equals(((ClassInstanceCreation) currentNode.node).getType().resolveBinding().getName()))
+                        {
+                            currentNode.children.add(methodNode);
+                            methodNode.parents.add(currentNode);
+                        }
+                    }
+                }
+            }
+        }
+        else if (currentNode.node instanceof MethodInvocation)
+        {
+            if(currentNode.node.getNodeType()==ASTNode.METHOD_INVOCATION) {
+                System.out.println("Name: " + ((MethodInvocation) currentNode.node).getName());
+
+                Expression expression = ((MethodInvocation) currentNode.node).getExpression();
+                if (expression != null) {
+                    System.out.println("Expr: " + expression.toString());
+                    ITypeBinding typeBinding = expression.resolveTypeBinding();
+                    if (typeBinding != null) {
+                        System.out.println("Type: " + typeBinding.getName());
+                        System.out.println("Qualified name: " +typeBinding.getQualifiedName());
+
+                        if (mapOfClassQualifiedNameToMethodGraphNodes.containsKey(typeBinding.getQualifiedName()))
+                        {
+                            for (GraphNode methodNode : mapOfClassQualifiedNameToMethodGraphNodes.get(typeBinding.getQualifiedName()))
+                            {
+                                /*System.out.println(methodNode.node);
+                                System.out.println(((MethodDeclaration) methodNode.node).getName().toString());
+                                System.out.println(((MethodInvocation) currentNode.node).getName());*/
+                                if (((MethodDeclaration) methodNode.node).getName().toString().equals(((MethodInvocation) currentNode.node).getName().toString()))
+                                {
+                                    currentNode.children.add(methodNode);
+                                    methodNode.parents.add(currentNode);
+                                }
+                            }
+                        }
+                    }
+                }
+                IMethodBinding binding = ((MethodInvocation) currentNode.node).resolveMethodBinding();
+                if (binding != null) {
+                    ITypeBinding type = binding.getDeclaringClass();
+                    if (type != null) {
+                        System.out.println("Decl: " + type.getName());
+                        System.out.println("Qualified name: " + type.getQualifiedName());
+                    }
+                }
+                System.out.println("---------");
+            }
+            //System.out.println(currentNode.node);
+            //System.out.println(((MethodInvocation) currentNode.node).resolveMethodBinding());
+        }
+        else
+        {
+            if (currentNode.getChildren().size()!=0)
+            {
+                for (GraphNode childNode: currentNode.getChildren())
+                {
+                    handleClassInteraction(childNode);
+                }
+            }
+        }
+    }
+
     FolderProcessor folderProcessor;
 
     public void operations () throws IOException {
@@ -105,6 +207,7 @@ public class SDG
             Operation op = new Operation(folderProcessor.getEnvironment());
             op.operations(javaFile.getAbsolutePath());
             classRoots.add(op.root);
+            mapOfClassQualifiedNameToMethodGraphNodes.put(op.classQualifiedName,op.getSetOfMethodDeclarationGraphNodes());
             mapForPathClassRoot.put(javaFile.getAbsolutePath(), op.root);
         }
 
@@ -116,7 +219,7 @@ public class SDG
 
         handleDerivedClasses();
 
-
+        handleClassInteractions();
 
         //debug system->class->method
         /*for (GraphNode classRoot: sdgRoot.children)

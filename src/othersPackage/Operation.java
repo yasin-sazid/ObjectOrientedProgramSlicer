@@ -13,6 +13,7 @@ public class Operation {
 
     public GraphNode root;
     public String classFilePath;
+    public String classQualifiedName;
     public String [] environment;
     Stack<GraphNode> graphNodeStack = new Stack<GraphNode> ();
     Set<GraphNode> assertNodeSet = new HashSet<>();
@@ -22,6 +23,8 @@ public class Operation {
     Map<IMethodBinding,GraphNode> mapForMethodDeclarationBinding = new HashMap<>();
 
     Map<IMethodBinding,Set<GraphNode>> mapForMethodReturnBinding = new HashMap<>();
+
+    Set<GraphNode> setOfMethodDeclarationGraphNodes = new HashSet<>();
 
     IMethodBinding methodBinding;
 
@@ -79,6 +82,7 @@ public class Operation {
 
             public boolean visit (TypeDeclaration node)
             {
+                classQualifiedName = node.resolveBinding().getQualifiedName();
                 root.node = node;
                 root.classFilePath = classFilePath;
                 //System.out.println(node.resolveBinding());
@@ -294,6 +298,7 @@ public class Operation {
                 return true;
             }
 
+            // be sure if it's not needed
             public boolean visit (ExpressionStatement node) {
                 //System.out.println(node);
                 GraphNode temp;
@@ -732,6 +737,21 @@ public class Operation {
 
             public boolean visit (MethodInvocation node) {
 
+                GraphNode temp;
+                temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
+                temp.parents.add(graphNodeStack.peek());
+                graphNodeStack.peek().children.add(temp);
+                graphNodeStack.add(temp);
+                for(GraphNode g: assertNodeSet)
+                {
+                    g.children.add(temp);
+                    temp.parents.add(g);
+                }
+                if(marker == 1)
+                    tryBodySet.add(temp);
+                //System.out.println(node);
+
                 List<Expression> list = node.arguments();
                 //System.out.println(list);
                 for(Expression e : list)
@@ -756,7 +776,7 @@ public class Operation {
                         }
                     });
                 }
-                return true;
+                return false;
             }
 
             public void endVisit (MethodInvocation node) {
@@ -765,7 +785,6 @@ public class Operation {
 
                 //System.out.println(node.getExpression().resolveTypeBinding());
 
-                System.out.println("Start Work From Line 710 in Operation");
                 if (node.getExpression()!=null){
                     //System.out.println(node.getExpression().resolveTypeBinding());
                 }
@@ -814,6 +833,8 @@ public class Operation {
                     }
                 }
                 setOfVariableBinding.clear();
+
+                graphNodeStack.pop();
             }
 
             public boolean visit (MethodDeclaration node) {
@@ -842,6 +863,7 @@ public class Operation {
                 temp.parents.add(graphNodeStack.peek());
                 //System.out.println(graphNodeStack.peek().node);
                 graphNodeStack.push(temp);
+                setOfMethodDeclarationGraphNodes.add(temp);
                 return true;
             }
 
@@ -881,11 +903,30 @@ public class Operation {
             public void postVisit (ASTNode node) {
 
             }
+
+            public boolean visit (ClassInstanceCreation node)
+            {
+                GraphNode temp;
+                temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
+                temp.parents.add(graphNodeStack.peek());
+                graphNodeStack.peek().children.add(temp);
+                graphNodeStack.add(temp);
+                return true;
+            }
+
+            public void endVisit (ClassInstanceCreation node)
+            {
+                graphNodeStack.pop();
+            }
+
         });
 
     }
 
-
+    public Set<GraphNode> getSetOfMethodDeclarationGraphNodes() {
+        return setOfMethodDeclarationGraphNodes;
+    }
 
     public void operations (String filePath) {
         classFilePath = filePath;
