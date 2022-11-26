@@ -6,7 +6,7 @@ public class Main {
     {
         //printAddition(5, 8);
         Maths maths = new Maths();
-        maths.add(5,6);
+        int a = maths.add(5,6);
         //int a = 5;
 
         /*if (a==5)

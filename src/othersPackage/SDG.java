@@ -113,9 +113,13 @@ public class SDG
 
     public void handleClassInteraction (GraphNode currentNode)
     {
-        if (currentNode.node instanceof Assignment)
+        if (currentNode.node instanceof VariableDeclarationStatement)
         {
-
+            System.out.println(currentNode.node);
+            for (GraphNode gn: currentNode.getChildren())
+            {
+                System.out.println(gn.node);
+            }
         }
         else if (currentNode.node instanceof ClassInstanceCreation)
         {

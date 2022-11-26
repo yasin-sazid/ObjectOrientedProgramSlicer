@@ -825,11 +825,17 @@ public class Operation {
                 //System.out.println(node);
                 for (IVariableBinding v : setOfVariableBinding)
                 {
-                    graphNodeStack.peek().getParents().addAll(mapForVariableBinding.get(v));
-                    for(GraphNode g : mapForVariableBinding.get(v))
+                    /*System.out.println(graphNodeStack.peek().getParents());
+                    System.out.println(mapForVariableBinding.get(v));*/
+
+                    if (mapForVariableBinding.containsKey(v))
                     {
-                        //System.out.println(g.node);
-                        g.children.add(graphNodeStack.peek());
+                        graphNodeStack.peek().getParents().addAll(mapForVariableBinding.get(v));
+                        for(GraphNode g : mapForVariableBinding.get(v))
+                        {
+                            //System.out.println(g.node);
+                            g.children.add(graphNodeStack.peek());
+                        }
                     }
                 }
                 setOfVariableBinding.clear();
