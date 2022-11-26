@@ -115,10 +115,57 @@ public class SDG
     {
         if (currentNode.node instanceof VariableDeclarationStatement)
         {
-            System.out.println(currentNode.node);
+            //System.out.println(currentNode.node);
             for (GraphNode gn: currentNode.getChildren())
             {
-                System.out.println(gn.node);
+                if(currentNode.node.toString().contains(gn.node.toString()))
+                {
+                    if(gn.node.getNodeType()==ASTNode.METHOD_INVOCATION) {
+                        System.out.println("Name: " + ((MethodInvocation) gn.node).getName());
+
+                        Expression expression = ((MethodInvocation) gn.node).getExpression();
+                        if (expression != null) {
+                            System.out.println("Expr: " + expression.toString());
+                            ITypeBinding typeBinding = expression.resolveTypeBinding();
+                            if (typeBinding != null) {
+                                System.out.println("Type: " + typeBinding.getName());
+                                System.out.println("Qualified name: " +typeBinding.getQualifiedName());
+
+                                if (mapOfClassQualifiedNameToMethodGraphNodes.containsKey(typeBinding.getQualifiedName()))
+                                {
+                                    for (GraphNode methodNode : mapOfClassQualifiedNameToMethodGraphNodes.get(typeBinding.getQualifiedName()))
+                                    {
+                                /*System.out.println(methodNode.node);
+                                System.out.println(((MethodDeclaration) methodNode.node).getName().toString());
+                                System.out.println(((MethodInvocation) currentNode.node).getName());*/
+                                        if (((MethodDeclaration) methodNode.node).getName().toString().equals(((MethodInvocation) gn.node).getName().toString()))
+                                        {
+                                            gn.children.add(methodNode);
+                                            methodNode.parents.add(gn);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        IMethodBinding binding = ((MethodInvocation) gn.node).resolveMethodBinding();
+                        if (binding != null) {
+                            ITypeBinding type = binding.getDeclaringClass();
+                            if (type != null) {
+                                System.out.println("Decl: " + type.getName());
+                                System.out.println("Qualified name: " + type.getQualifiedName());
+                            }
+                        }
+                        System.out.println("---------");
+                    }
+                }
+            }
+
+            if (currentNode.getChildren().size()!=0)
+            {
+                for (GraphNode childNode: currentNode.getChildren())
+                {
+                    handleClassInteraction(childNode);
+                }
             }
         }
         else if (currentNode.node instanceof ClassInstanceCreation)
