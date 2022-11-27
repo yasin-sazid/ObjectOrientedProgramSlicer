@@ -1,6 +1,7 @@
 package othersPackage;
 
 import org.eclipse.core.expressions.IVariableResolver;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.dom.*;
 
 import java.io.BufferedReader;
@@ -204,8 +205,8 @@ public class SDG
                     ITypeBinding typeBinding = expression.resolveTypeBinding();
                     if (typeBinding != null) {
                         System.out.println("Type: " + typeBinding.getName());
+                        //System.out.println(((ITypeBinding)typeBinding.getSuperclass()).getSuperclass());
                         System.out.println("Qualified name: " +typeBinding.getQualifiedName());
-
                         if (mapOfClassQualifiedNameToMethodGraphNodes.containsKey(typeBinding.getQualifiedName()))
                         {
                             for (GraphNode methodNode : mapOfClassQualifiedNameToMethodGraphNodes.get(typeBinding.getQualifiedName()))
@@ -247,6 +248,27 @@ public class SDG
         }
     }
 
+    public void handlePolymorphism ()
+    {
+        for (GraphNode classRoot : sdgRoot.getChildren())
+        {
+            if (((TypeDeclaration)classRoot.node).getSuperclassType()!=null)
+            {
+                /*System.out.println(((TypeDeclaration) classRoot.node).getName());
+                System.out.println(((TypeDeclaration)classRoot.node).getSuperclassType());*/
+            }
+            /*for (GraphNode methodRoot : classRoot.getChildren())
+            {
+                for (GraphNode statementNode: methodRoot.getChildren())
+                {
+                    handleClassInteraction(statementNode);
+                }
+            }*/
+
+
+        }
+    }
+
     FolderProcessor folderProcessor;
 
     public void operations () throws IOException {
@@ -271,6 +293,8 @@ public class SDG
         handleDerivedClasses();
 
         handleClassInteractions();
+
+        handlePolymorphism();
 
         //debug system->class->method
         /*for (GraphNode classRoot: sdgRoot.children)

@@ -5,7 +5,9 @@ public class Main {
     public static void main(String[] args)
     {
         //printAddition(5, 8);
-        Maths maths = new Maths();
+
+        Maths maths = new ExtraExtendedMaths();
+
         int a = maths.add(5,6);
         //int a = 5;
 

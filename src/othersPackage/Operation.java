@@ -7,6 +7,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.AnnotatedArrayType;
+import java.lang.reflect.WildcardType;
 import java.util.*;
 
 public class Operation {
