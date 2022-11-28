@@ -8,7 +8,11 @@ public class Main {
 
         Maths maths = new ExtraExtendedMaths();
 
-        int a = maths.add(5,6);
+        int a = maths.add(5,4);
+
+        Maths m = new ExtraExtendedMaths();
+
+        int b = m.add(5,6, 8);
         //int a = 5;
 
         /*if (a==5)
