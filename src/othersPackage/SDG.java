@@ -12,6 +12,8 @@ import java.util.*;
 
 public class SDG
 {
+    private InheritanceTreeNode inheritanceTreeRoot = new InheritanceTreeNode();
+
     private String projectPath;
     private int criterionLineNumber;
     private String criterionFilePath;
@@ -248,25 +250,87 @@ public class SDG
         }
     }
 
+    public void handleSuperClasses (GraphNode classRoot)
+    {
+        Type superClassType = ((TypeDeclaration)classRoot.node).getSuperclassType();
+
+        handleSuperClass(classRoot, superClassType);
+    }
+
+    public void handleSuperClass (GraphNode classRoot, Type superClassType)
+    {
+        String qualifiedSuperClassName = superClassType.resolveBinding().getPackage().getName()
+                + '.' + superClassType.resolveBinding().getName();
+
+        for (GraphNode mdSuper: mapOfClassQualifiedNameToMethodGraphNodes.get(qualifiedSuperClassName))
+        {
+            for (MethodDeclaration md: ((TypeDeclaration) classRoot.node).getMethods())
+            {
+                /*System.out.println(md.getReturnType2());
+                System.out.println(md.parameters().size());
+                for (Object param : md.parameters())
+                {
+                    System.out.println(((SingleVariableDeclaration)param).getType());
+                }*/
+            }
+        }
+
+        //System.out.println(classRoot.node);
+
+        if (superClassType.resolveBinding().getSuperclass()!=null)
+        {
+            for (GraphNode classRoot2: classRoots)
+            {
+                if (classRoot2.classQualifiedName.equals(qualifiedSuperClassName))
+                {
+                    superClassType = ((TypeDeclaration)classRoot2.node).getSuperclassType();
+                    break;
+                }
+            }
+
+            if (superClassType!=null)
+            {
+                //System.out.println(superClassType.resolveBinding().getQualifiedName());
+                handleSuperClass(classRoot, superClassType);
+            }
+        }
+    }
+
     public void handlePolymorphism ()
     {
         for (GraphNode classRoot : sdgRoot.getChildren())
         {
+            if (((TypeDeclaration) classRoot.node).getSuperclassType() != null)
+            {
+                handleSuperClasses(classRoot);
+            }
+        }
+
+        /*for (GraphNode classRoot : sdgRoot.getChildren())
+        {
             if (((TypeDeclaration)classRoot.node).getSuperclassType()!=null)
             {
-                /*System.out.println(((TypeDeclaration) classRoot.node).getName());
-                System.out.println(((TypeDeclaration)classRoot.node).getSuperclassType());*/
+                String qualifiedSuperClassName = ((TypeDeclaration)classRoot.node).getSuperclassType().resolveBinding().getPackage().getName()
+                        + '.' + ((TypeDeclaration)classRoot.node).getSuperclassType().resolveBinding().getName();
+
+                InheritanceTreeNode superClassNode = new InheritanceTreeNode(qualifiedSuperClassName);
+
+                superClassNode.children.add(new InheritanceTreeNode(classRoot.classQualifiedName));
+
+                inheritanceTreeRoot.children.add()
+
+                System.out.println(classRoot.classQualifiedName);
+                String sakdasd = ((TypeDeclaration)classRoot.node)
+
+                superClassNode.children.add(classRoot.node.ge)
+
+                System.out.println(qualifiedSuperClassName);
+                System.out.println(((TypeDeclaration)classRoot.node).getSuperclassType().resolveBinding().);
+                InheritanceTreeNode superClass = new InheritanceTreeNode(((TypeDeclaration)classRoot.node).getSuperclassType().resolveBinding().getQualifiedName())
+                System.out.println(((TypeDeclaration) classRoot.node).getName());
+                System.out.println(((TypeDeclaration)classRoot.node).getSuperclassType());
             }
-            /*for (GraphNode methodRoot : classRoot.getChildren())
-            {
-                for (GraphNode statementNode: methodRoot.getChildren())
-                {
-                    handleClassInteraction(statementNode);
-                }
-            }*/
-
-
-        }
+        }*/
     }
 
     FolderProcessor folderProcessor;

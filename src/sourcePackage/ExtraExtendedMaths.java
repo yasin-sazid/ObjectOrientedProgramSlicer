@@ -15,6 +15,10 @@ public class ExtraExtendedMaths extends ExtendedMaths{
         return a*b;
     }
 
+    public int mul(int a, int b, int c) {
+        return a*b*c;
+    }
+
     public int add (int a, int b) {
         return a+b;
     }

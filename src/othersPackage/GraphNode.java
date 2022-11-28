@@ -8,6 +8,7 @@ import java.util.Set;
 public class GraphNode {
 
     public String classFilePath;
+    public String classQualifiedName;
     public ASTNode node;
     public Set<GraphNode> parents;
     public Set<GraphNode> children;

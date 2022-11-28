@@ -86,6 +86,7 @@ public class Operation {
             {
                 classQualifiedName = node.resolveBinding().getQualifiedName();
                 root.node = node;
+                root.classQualifiedName = classQualifiedName;
                 root.classFilePath = classFilePath;
                 //System.out.println(node.resolveBinding());
                 if (node.getSuperclassType()!=null){
