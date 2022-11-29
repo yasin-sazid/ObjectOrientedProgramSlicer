@@ -523,8 +523,10 @@ public class Operation {
             }
 
             public boolean visit (VariableDeclarationFragment node) {
-                //System.out.println(node);
+                /*System.out.println("hillu");
+                System.out.println(node);*/
                 IVariableBinding bind = node.resolveBinding();
+                //System.out.println(bind);
                 Set<GraphNode> set = new HashSet<>();
                 set.add(graphNodeStack.peek());
                 mapForVariableBinding.put(bind,set);
@@ -554,7 +556,10 @@ public class Operation {
                             //System.out.println(child);
                             if (!(child.resolveBinding() instanceof ITypeBinding || child.resolveBinding() instanceof  IMethodBinding))
                             {
-                                setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
+                                if (child.resolveBinding()!=null)
+                                {
+                                    setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
+                                }
                             }
                         }
                         return true;
@@ -681,9 +686,11 @@ public class Operation {
                             s = (IVariableBinding) child.resolveBinding();
                             marking = 1;
                         }
-                        else
-                        {
-                            setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
+                        else {
+                            if (child.resolveBinding() != null)
+                            {
+                                setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
+                            }
                         }
                         return false;
                     }
@@ -739,6 +746,22 @@ public class Operation {
             }
 
             public boolean visit (MethodInvocation node) {
+                //System.out.println(node);
+
+                node.accept(new ASTVisitor()
+                {
+                    public boolean visit(SimpleName child)
+                    {
+                        if (!(child.resolveBinding() instanceof ITypeBinding || child.resolveBinding() instanceof  IMethodBinding))
+                        {
+                            if (child.resolveBinding()!=null)
+                            {
+                                setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
+                            }
+                        }
+                        return true;
+                    }
+                });
 
                 GraphNode temp;
                 temp = new GraphNode(node);
@@ -765,7 +788,9 @@ public class Operation {
                             //System.out.println(setOfVariableBinding.size());
                             if (!(child.resolveBinding() instanceof ITypeBinding|| child.resolveBinding() instanceof IMethodBinding))
                             {
-                                setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
+                                if (child.resolveBinding() != null) {
+                                    setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
+                                }
                             }
                             //System.out.println(setOfVariableBinding.size());
                             for (IVariableBinding v : setOfVariableBinding)
@@ -783,6 +808,18 @@ public class Operation {
             }
 
             public void endVisit (MethodInvocation node) {
+
+                for (IVariableBinding v : setOfVariableBinding)
+                {
+                    graphNodeStack.peek().getParents().addAll(mapForVariableBinding.get(v));
+                    for(GraphNode g : mapForVariableBinding.get(v))
+                    {
+                        g.children.add(graphNodeStack.peek());
+                    }
+                    mapForVariableBinding.get(s).add(graphNodeStack.peek());
+                }
+
+                setOfVariableBinding.clear();
 
                 IMethodBinding bind = node.resolveMethodBinding();
 

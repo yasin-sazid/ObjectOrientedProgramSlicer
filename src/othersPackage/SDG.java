@@ -12,8 +12,6 @@ import java.util.*;
 
 public class SDG
 {
-    private InheritanceTreeNode inheritanceTreeRoot = new InheritanceTreeNode();
-
     private String projectPath;
     private int criterionLineNumber;
     private String criterionFilePath;
@@ -124,15 +122,15 @@ public class SDG
                 if(currentNode.node.toString().contains(gn.node.toString()))
                 {
                     if(gn.node.getNodeType()==ASTNode.METHOD_INVOCATION) {
-                        System.out.println("Name: " + ((MethodInvocation) gn.node).getName());
+                        //System.out.println("Name: " + ((MethodInvocation) gn.node).getName());
 
                         Expression expression = ((MethodInvocation) gn.node).getExpression();
                         if (expression != null) {
-                            System.out.println("Expr: " + expression.toString());
+                            //System.out.println("Expr: " + expression.toString());
                             ITypeBinding typeBinding = expression.resolveTypeBinding();
                             if (typeBinding != null) {
-                                System.out.println("Type: " + typeBinding.getName());
-                                System.out.println("Qualified name: " +typeBinding.getQualifiedName());
+                                //System.out.println("Type: " + typeBinding.getName());
+                                //System.out.println("Qualified name: " +typeBinding.getQualifiedName());
 
                                 if (mapOfClassQualifiedNameToMethodGraphNodes.containsKey(typeBinding.getQualifiedName()))
                                 {
@@ -251,11 +249,11 @@ public class SDG
                         if (binding != null) {
                             ITypeBinding type = binding.getDeclaringClass();
                             if (type != null) {
-                                System.out.println("Decl: " + type.getName());
-                                System.out.println("Qualified name: " + type.getQualifiedName());
+                                //System.out.println("Decl: " + type.getName());
+                                //System.out.println("Qualified name: " + type.getQualifiedName());
                             }
                         }
-                        System.out.println("---------");
+                        //System.out.println("---------");
                     }
                 }
             }
@@ -293,19 +291,23 @@ public class SDG
                 }
             }
         }
+        else if (currentNode.node instanceof  Assignment)
+        {
+
+        }
         else if (currentNode.node instanceof MethodInvocation)
         {
             if(currentNode.node.getNodeType()==ASTNode.METHOD_INVOCATION) {
-                System.out.println("Name: " + ((MethodInvocation) currentNode.node).getName());
+                //System.out.println("Name: " + ((MethodInvocation) currentNode.node).getName());
 
                 Expression expression = ((MethodInvocation) currentNode.node).getExpression();
                 if (expression != null) {
-                    System.out.println("Expr: " + expression.toString());
+                    //System.out.println("Expr: " + expression.toString());
                     ITypeBinding typeBinding = expression.resolveTypeBinding();
                     if (typeBinding != null) {
-                        System.out.println("Type: " + typeBinding.getName());
+                        //System.out.println("Type: " + typeBinding.getName());
                         //System.out.println(((ITypeBinding)typeBinding.getSuperclass()).getSuperclass());
-                        System.out.println("Qualified name: " +typeBinding.getQualifiedName());
+                        //System.out.println("Qualified name: " +typeBinding.getQualifiedName());
                         if (mapOfClassQualifiedNameToMethodGraphNodes.containsKey(typeBinding.getQualifiedName()))
                         {
                             for (GraphNode methodNode : mapOfClassQualifiedNameToMethodGraphNodes.get(typeBinding.getQualifiedName()))
@@ -423,11 +425,11 @@ public class SDG
                 if (binding != null) {
                     ITypeBinding type = binding.getDeclaringClass();
                     if (type != null) {
-                        System.out.println("Decl: " + type.getName());
-                        System.out.println("Qualified name: " + type.getQualifiedName());
+                        //System.out.println("Decl: " + type.getName());
+                        //System.out.println("Qualified name: " + type.getQualifiedName());
                     }
                 }
-                System.out.println("---------");
+                //System.out.println("---------");
             }
             //System.out.println(currentNode.node);
             //System.out.println(((MethodInvocation) currentNode.node).resolveMethodBinding());
@@ -535,32 +537,6 @@ public class SDG
                 handleSuperClasses(classRoot);
             }
         }
-
-        /*for (GraphNode classRoot : sdgRoot.getChildren())
-        {
-            if (((TypeDeclaration)classRoot.node).getSuperclassType()!=null)
-            {
-                String qualifiedSuperClassName = ((TypeDeclaration)classRoot.node).getSuperclassType().resolveBinding().getPackage().getName()
-                        + '.' + ((TypeDeclaration)classRoot.node).getSuperclassType().resolveBinding().getName();
-
-                InheritanceTreeNode superClassNode = new InheritanceTreeNode(qualifiedSuperClassName);
-
-                superClassNode.children.add(new InheritanceTreeNode(classRoot.classQualifiedName));
-
-                inheritanceTreeRoot.children.add()
-
-                System.out.println(classRoot.classQualifiedName);
-                String sakdasd = ((TypeDeclaration)classRoot.node)
-
-                superClassNode.children.add(classRoot.node.ge)
-
-                System.out.println(qualifiedSuperClassName);
-                System.out.println(((TypeDeclaration)classRoot.node).getSuperclassType().resolveBinding().);
-                InheritanceTreeNode superClass = new InheritanceTreeNode(((TypeDeclaration)classRoot.node).getSuperclassType().resolveBinding().getQualifiedName())
-                System.out.println(((TypeDeclaration) classRoot.node).getName());
-                System.out.println(((TypeDeclaration)classRoot.node).getSuperclassType());
-            }
-        }*/
     }
 
     FolderProcessor folderProcessor;
