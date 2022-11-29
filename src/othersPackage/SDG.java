@@ -291,9 +291,9 @@ public class SDG
                 }
             }
         }
-        else if (currentNode.node instanceof  Assignment)
+        else if (currentNode.node instanceof  ExpressionStatement)
         {
-
+            System.out.println(currentNode.node);
         }
         else if (currentNode.node instanceof MethodInvocation)
         {

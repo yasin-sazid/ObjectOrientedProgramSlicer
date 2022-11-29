@@ -6,9 +6,9 @@ public class Main {
     {
         Maths maths = new ExtraExtendedMaths();
 
-        int a;
+        int a = maths.add(3, 4);
 
-        a = maths.add(5,4);
+        a = maths.add(5, 4);
     }
 
     public static void printAddition (int a, int b)
