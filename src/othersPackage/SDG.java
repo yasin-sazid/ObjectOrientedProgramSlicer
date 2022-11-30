@@ -114,6 +114,8 @@ public class SDG
 
     public void handleClassInteraction (GraphNode currentNode)
     {
+        /*System.out.println(currentNode.node);
+        System.out.println(currentNode.node.getNodeType());*/
         if (currentNode.node instanceof VariableDeclarationStatement)
         {
             //System.out.println(currentNode.node);
@@ -291,128 +293,180 @@ public class SDG
                 }
             }
         }
-        else if (currentNode.node instanceof  ExpressionStatement)
+        /*else if (currentNode.node instanceof  Assignment)
         {
-            System.out.println(currentNode.node);
-        }
-        else if (currentNode.node instanceof MethodInvocation)
-        {
-            if(currentNode.node.getNodeType()==ASTNode.METHOD_INVOCATION) {
-                //System.out.println("Name: " + ((MethodInvocation) currentNode.node).getName());
+            //System.out.println(currentNode.node);
+            Expression ex = ((Assignment) currentNode.node).getRightHandSide();
+            //System.out.println(ex);
+            if (ex instanceof MethodInvocation)
+            {
+                MethodInvocation mi = (MethodInvocation) ex;
+                System.out.println(mi);
+            }
+            *//*currentNode.node.*//*
+            currentNode.node.accept(new ASTVisitor() {
+                public boolean visit (SimpleName child)
+                {
+                    //System.out.println(child);
+                    *//*if(marking == 0)
+                    {
+                        s = (IVariableBinding) child.resolveBinding();
+                        marking = 1;
+                    }
+                    else
+                    {
+                        //System.out.println(child);
 
-                Expression expression = ((MethodInvocation) currentNode.node).getExpression();
-                if (expression != null) {
-                    //System.out.println("Expr: " + expression.toString());
-                    ITypeBinding typeBinding = expression.resolveTypeBinding();
-                    if (typeBinding != null) {
-                        //System.out.println("Type: " + typeBinding.getName());
-                        //System.out.println(((ITypeBinding)typeBinding.getSuperclass()).getSuperclass());
-                        //System.out.println("Qualified name: " +typeBinding.getQualifiedName());
-                        if (mapOfClassQualifiedNameToMethodGraphNodes.containsKey(typeBinding.getQualifiedName()))
+                    }*//*
+                    *//*if (!(child.resolveBinding() instanceof ITypeBinding || child.resolveBinding() instanceof  IMethodBinding))
+                    {
+                        if (child.resolveBinding()!=null)
                         {
-                            for (GraphNode methodNode : mapOfClassQualifiedNameToMethodGraphNodes.get(typeBinding.getQualifiedName()))
+                            *//**//*setOfVariableBinding.add((IVariableBinding) child.resolveBinding());*//**//*
+                        }
+                    }*//*
+                    return true;
+                }
+            });
+        }*/
+        else if (currentNode.node instanceof MethodInvocation || currentNode.node instanceof Assignment)
+        {
+            MethodInvocation mi = null;
+
+            if (currentNode.node instanceof Assignment)
+            {
+                Expression ex = ((Assignment) currentNode.node).getRightHandSide();
+                //System.out.println(ex);
+                if (((Assignment) currentNode.node).getRightHandSide() instanceof MethodInvocation)
+                {
+                    mi = (MethodInvocation) ex;
+                    //System.out.println(mi);
+                }
+            }
+            else
+            {
+                mi = (MethodInvocation) currentNode.node;
+            }
+
+            if (mi!=null)
+            {
+                if(mi.getNodeType()==ASTNode.METHOD_INVOCATION) {
+                    //System.out.println("Name: " + ((MethodInvocation) currentNode.node).getName());
+
+                    Expression expression = ((MethodInvocation) mi).getExpression();
+                    if (expression != null) {
+                        //System.out.println("Expr: " + expression.toString());
+                        ITypeBinding typeBinding = expression.resolveTypeBinding();
+                        if (typeBinding != null) {
+                            //System.out.println("Type: " + typeBinding.getName());
+                            //System.out.println(((ITypeBinding)typeBinding.getSuperclass()).getSuperclass());
+                            //System.out.println("Qualified name: " +typeBinding.getQualifiedName());
+                            if (mapOfClassQualifiedNameToMethodGraphNodes.containsKey(typeBinding.getQualifiedName()))
                             {
+                                for (GraphNode methodNode : mapOfClassQualifiedNameToMethodGraphNodes.get(typeBinding.getQualifiedName()))
+                                {
                                 /*System.out.println(methodNode.node);
                                 System.out.println(((MethodDeclaration) methodNode.node).getName().toString());
                                 System.out.println(((MethodInvocation) currentNode.node).getName());*/
 
-                                MethodDeclaration md = (MethodDeclaration) methodNode.node;
-                                MethodInvocation md2 = (MethodInvocation) currentNode.node;
+                                    MethodDeclaration md = (MethodDeclaration) methodNode.node;
+                                    MethodInvocation md2 = mi;
 
-                                if (md.getName().toString().equals(md2.getName().toString()))
-                                {
-                                    if (md.parameters().size()==md2.arguments().size())
+                                    if (md.getName().toString().equals(md2.getName().toString()))
                                     {
-                                        List<String> mdParamsList = new ArrayList();
-                                        List<String> md2ParamsList = new ArrayList();
-                                        boolean matchmds = false;
-                                        for (Object param : md.parameters())
+                                        if (md.parameters().size()==md2.arguments().size())
                                         {
-                                            if (((SingleVariableDeclaration)param).getType().toString().equals("float")
-                                            || ((SingleVariableDeclaration)param).getType().toString().equals("double"))
+                                            List<String> mdParamsList = new ArrayList();
+                                            List<String> md2ParamsList = new ArrayList();
+                                            boolean matchmds = false;
+                                            for (Object param : md.parameters())
                                             {
-                                                mdParamsList.add("double");
-                                            }
-                                            else if (((SingleVariableDeclaration)param).getType().toString().equals("byte")
-                                            || ((SingleVariableDeclaration)param).getType().toString().equals("short")
-                                            || ((SingleVariableDeclaration)param).getType().toString().equals("long")
-                                            || ((SingleVariableDeclaration)param).getType().toString().equals("int"))
-                                            {
-                                                mdParamsList.add("int");
-                                            }
-                                            else if (((SingleVariableDeclaration)param).getType().toString().equals("char"))
-                                            {
-                                                mdParamsList.add("char");
-                                            }
-                                            else if (((SingleVariableDeclaration)param).getType().toString().equals("String"))
-                                            {
-                                                mdParamsList.add("String");
-                                            }
-                                            else if (((SingleVariableDeclaration)param).getType().toString().equals("boolean"))
-                                            {
-                                                mdParamsList.add("boolean");
-                                            }
-                                            else
-                                            {
-                                                mdParamsList.add("Object");
-                                            }
-                                        }
-                                        for (Object param : md2.arguments())
-                                        {
-                                            if (param.getClass().getName().toString().equals("org.eclipse.jdt.core.dom.NumberLiteral"))
-                                            {
-                                                if (param.toString().contains("."))
+                                                if (((SingleVariableDeclaration)param).getType().toString().equals("float")
+                                                        || ((SingleVariableDeclaration)param).getType().toString().equals("double"))
                                                 {
-                                                    md2ParamsList.add("double");
+                                                    mdParamsList.add("double");
+                                                }
+                                                else if (((SingleVariableDeclaration)param).getType().toString().equals("byte")
+                                                        || ((SingleVariableDeclaration)param).getType().toString().equals("short")
+                                                        || ((SingleVariableDeclaration)param).getType().toString().equals("long")
+                                                        || ((SingleVariableDeclaration)param).getType().toString().equals("int"))
+                                                {
+                                                    mdParamsList.add("int");
+                                                }
+                                                else if (((SingleVariableDeclaration)param).getType().toString().equals("char"))
+                                                {
+                                                    mdParamsList.add("char");
+                                                }
+                                                else if (((SingleVariableDeclaration)param).getType().toString().equals("String"))
+                                                {
+                                                    mdParamsList.add("String");
+                                                }
+                                                else if (((SingleVariableDeclaration)param).getType().toString().equals("boolean"))
+                                                {
+                                                    mdParamsList.add("boolean");
                                                 }
                                                 else
                                                 {
-                                                    md2ParamsList.add("int");
+                                                    mdParamsList.add("Object");
                                                 }
                                             }
-                                            else if (param.getClass().getName().toString().equals("org.eclipse.jdt.core.dom.StringLiteral"))
+                                            for (Object param : md2.arguments())
                                             {
-                                                md2ParamsList.add("String");
+                                                if (param.getClass().getName().toString().equals("org.eclipse.jdt.core.dom.NumberLiteral"))
+                                                {
+                                                    if (param.toString().contains("."))
+                                                    {
+                                                        md2ParamsList.add("double");
+                                                    }
+                                                    else
+                                                    {
+                                                        md2ParamsList.add("int");
+                                                    }
+                                                }
+                                                else if (param.getClass().getName().toString().equals("org.eclipse.jdt.core.dom.StringLiteral"))
+                                                {
+                                                    md2ParamsList.add("String");
+                                                }
+                                                else if (param.getClass().getName().toString().equals("org.eclipse.jdt.core.dom.CharacterLiteral"))
+                                                {
+                                                    md2ParamsList.add("char");
+                                                }
+                                                else if (param.getClass().getName().toString().equals("org.eclipse.jdt.core.dom.BooleanLiteral"))
+                                                {
+                                                    md2ParamsList.add("boolean");
+                                                }
+                                                else if (param.getClass().getName().toString().equals("org.eclipse.jdt.core.dom.NullLiteral"))
+                                                {
+                                                    matchmds = true;
+                                                    md2ParamsList.add("Object");
+                                                }
+                                                else if (param.getClass().getName().toString().equals("org.eclipse.jdt.core.dom.TypeLiteral"))
+                                                {
+                                                    md2ParamsList.add("Object");
+                                                }
+                                                else
+                                                {
+                                                    matchmds = true;
+                                                    md2ParamsList.add("Object");
+                                                }
+                                                //md2ParamsList.add(((SingleVariableDeclaration)param).getType().toString());
                                             }
-                                            else if (param.getClass().getName().toString().equals("org.eclipse.jdt.core.dom.CharacterLiteral"))
+                                            Collections.sort(mdParamsList);
+                                            Collections.sort(md2ParamsList);
+
+                                            if (matchmds)
                                             {
-                                                md2ParamsList.add("char");
-                                            }
-                                            else if (param.getClass().getName().toString().equals("org.eclipse.jdt.core.dom.BooleanLiteral"))
-                                            {
-                                                md2ParamsList.add("boolean");
-                                            }
-                                            else if (param.getClass().getName().toString().equals("org.eclipse.jdt.core.dom.NullLiteral"))
-                                            {
-                                                matchmds = true;
-                                                md2ParamsList.add("Object");
-                                            }
-                                            else if (param.getClass().getName().toString().equals("org.eclipse.jdt.core.dom.TypeLiteral"))
-                                            {
-                                                md2ParamsList.add("Object");
+                                                currentNode.children.add(methodNode);
+                                                methodNode.parents.add(currentNode);
                                             }
                                             else
                                             {
-                                                matchmds = true;
-                                                md2ParamsList.add("Object");
-                                            }
-                                            //md2ParamsList.add(((SingleVariableDeclaration)param).getType().toString());
-                                        }
-                                        Collections.sort(mdParamsList);
-                                        Collections.sort(md2ParamsList);
-
-                                        if (matchmds)
-                                        {
-                                            currentNode.children.add(methodNode);
-                                            methodNode.parents.add(currentNode);
-                                        }
-                                        else
-                                        {
-                                            if (mdParamsList.equals(md2ParamsList))
-                                            {
-                                                //System.out.println(md.resolveBinding());
-                                                currentNode.children.add(methodNode);
-                                                methodNode.parents.add(currentNode);
+                                                if (mdParamsList.equals(md2ParamsList))
+                                                {
+                                                    //System.out.println(md.resolveBinding());
+                                                    currentNode.children.add(methodNode);
+                                                    methodNode.parents.add(currentNode);
+                                                }
                                             }
                                         }
                                     }
@@ -420,27 +474,29 @@ public class SDG
                             }
                         }
                     }
-                }
-                IMethodBinding binding = ((MethodInvocation) currentNode.node).resolveMethodBinding();
-                if (binding != null) {
-                    ITypeBinding type = binding.getDeclaringClass();
-                    if (type != null) {
-                        //System.out.println("Decl: " + type.getName());
-                        //System.out.println("Qualified name: " + type.getQualifiedName());
+                    IMethodBinding binding = ((MethodInvocation) mi).resolveMethodBinding();
+                    if (binding != null) {
+                        ITypeBinding type = binding.getDeclaringClass();
+                        if (type != null) {
+                            //System.out.println("Decl: " + type.getName());
+                            //System.out.println("Qualified name: " + type.getQualifiedName());
+                        }
                     }
+                    //System.out.println("---------");
                 }
-                //System.out.println("---------");
+                //System.out.println(currentNode.node);
+                //System.out.println(((MethodInvocation) currentNode.node).resolveMethodBinding());
             }
-            //System.out.println(currentNode.node);
-            //System.out.println(((MethodInvocation) currentNode.node).resolveMethodBinding());
-        }
-        else
-        {
-            if (currentNode.getChildren().size()!=0)
+            else
             {
-                for (GraphNode childNode: currentNode.getChildren())
+                /*System.out.println(currentNode.node);
+                System.out.println(currentNode.getChildren().size());*/
+                if (currentNode.getChildren().size()!=0)
                 {
-                    handleClassInteraction(childNode);
+                    for (GraphNode childNode: currentNode.getChildren())
+                    {
+                        handleClassInteraction(childNode);
+                    }
                 }
             }
         }
@@ -494,7 +550,7 @@ public class SDG
 
                             for (GraphNode gn: mdSuper.parents)
                             {
-                                if (gn.node.getNodeType()==ASTNode.METHOD_INVOCATION)
+                                if (gn.node.getNodeType()==ASTNode.METHOD_INVOCATION || gn.node.getNodeType()==ASTNode.ASSIGNMENT)
                                 {
                                     gn.children.add(mdChild);
                                     mdChild.parents.add(gn);
@@ -627,7 +683,7 @@ public class SDG
         //System.out.println(node.node);
         for(GraphNode g : node.children)
         {
-            if(g.node.toString().equals(startingNode.toString())&&g.node.getStartPosition()==startingNode.getStartPosition())
+            if(g.node.getStartPosition()==startingNode.getStartPosition())
             {
                 return g;
             }
@@ -635,7 +691,7 @@ public class SDG
             int pickNode = 1;
             for (GraphNode n: visited)
             {
-                if (g.node.toString().equals(n.node.toString())&&g.node.getStartPosition()==n.node.getStartPosition())
+                if (g.node.getStartPosition()==n.node.getStartPosition())
                 {
                     pickNode = 0;
                 }

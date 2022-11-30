@@ -302,7 +302,7 @@ public class Operation {
             }
 
             // be sure if it's not needed
-            public boolean visit (ExpressionStatement node) {
+            /*public boolean visit (ExpressionStatement node) {
                 //System.out.println(node);
                 GraphNode temp;
                 temp = new GraphNode(node);
@@ -318,7 +318,7 @@ public class Operation {
                 if(marker == 1)
                     tryBodySet.add(temp);
                 return true;
-            }
+            }*/
 
             public boolean visit (SimpleName node) {
                 IBinding bind = node.resolveBinding();
@@ -484,9 +484,9 @@ public class Operation {
                 graphNodeStack.pop();
             }
 
-            public void endVisit (ExpressionStatement node) {
+            /*public void endVisit (ExpressionStatement node) {
                 graphNodeStack.pop();
-            }
+            }*/
 
             public void endVisit (LabeledStatement node) {
                 graphNodeStack.pop();
@@ -523,6 +523,7 @@ public class Operation {
             }
 
             public boolean visit (VariableDeclarationFragment node) {
+                //System.out.println(graphNodeStack.peek().node);
                 /*System.out.println("hillu");
                 System.out.println(node);*/
                 IVariableBinding bind = node.resolveBinding();
@@ -545,7 +546,8 @@ public class Operation {
                 node.accept(new ASTVisitor() {
                     public boolean visit (SimpleName child)
                     {
-                        //System.out.println(child);
+                        /*System.out.println("fragmentChild");
+                        System.out.println(child);*/
                         if(marking == 0)
                         {
                             s = (IVariableBinding) child.resolveBinding();
@@ -553,11 +555,11 @@ public class Operation {
                         }
                         else
                         {
-                            //System.out.println(child);
                             if (!(child.resolveBinding() instanceof ITypeBinding || child.resolveBinding() instanceof  IMethodBinding))
                             {
                                 if (child.resolveBinding()!=null)
                                 {
+                                    //System.out.println((IVariableBinding) child.resolveBinding());
                                     setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
                                 }
                             }
@@ -565,25 +567,45 @@ public class Operation {
                         return true;
                     }
                 });
-                return true;
-            }
 
-            public void endVisit (VariableDeclarationFragment node) {
+                //System.out.println(setOfVariableBinding.size());
                 for (IVariableBinding v : setOfVariableBinding)
                 {
                     graphNodeStack.peek().getParents().addAll(mapForVariableBinding.get(v));
                     for(GraphNode g : mapForVariableBinding.get(v))
                     {
+                        //System.out.println(g.node);
                         g.children.add(graphNodeStack.peek());
+                        //graphNodeStack.peek().parents.add(g);
                     }
                     mapForVariableBinding.get(s).add(graphNodeStack.peek());
                 }
                 setOfVariableBinding.clear();
                 marking = 0;
+
+                return true;
+            }
+
+            public void endVisit (VariableDeclarationFragment node) {
+
             }
 
             public boolean visit (VariableDeclarationStatement node) {
-                //System.out.println(node);
+                /*System.out.println("vds");
+                //System.out.println(node.fragments());
+                for (Object vdf: node.fragments())
+                {
+                    System.out.println(vdf);
+                }
+
+                node.accept(new ASTVisitor() {
+                    public boolean visit (SimpleName child)
+                    {
+                        System.out.println(child);
+                        System.out.println(child.getNodeType());
+                        return true;
+                    }
+                });*/
 
                 GraphNode temp;
                 temp = new GraphNode(node);
@@ -674,7 +696,23 @@ public class Operation {
             }*/
 
             public boolean visit (Assignment node) {
+
+                GraphNode temp;
+                temp = new GraphNode(node);
+                temp.classFilePath = classFilePath;
+                temp.parents.add(graphNodeStack.peek());
+                graphNodeStack.peek().children.add(temp);
+                graphNodeStack.add(temp);
+                for(GraphNode g: assertNodeSet)
+                {
+                    g.children.add(temp);
+                    temp.parents.add(g);
+                }
+                if(marker == 1)
+                    tryBodySet.add(temp);
+
                 //System.out.println(node);
+
                 node.accept(new ASTVisitor() {
 
                     public boolean visit (SimpleName child)
@@ -710,39 +748,46 @@ public class Operation {
             }
 
             public void endVisit (Assignment node) {
-                if(setOfVariableBinding.isEmpty())
-                {
-                    GraphNode tempuNode = null;
-                    for(GraphNode g : mapForVariableBinding.get(s))
-                    {
-                        if(g.node instanceof VariableDeclarationStatement)
-                        {
-                            tempuNode = g;
-                            break;
-                        }
-                    }
-                    Set<GraphNode> tempuSet = new HashSet<>();
-                    tempuSet.add(tempuNode);
-                    tempuSet.add(graphNodeStack.peek());
-                    mapForVariableBinding.replace(s,mapForVariableBinding.get(s),tempuSet);
 
-                    tempuNode.children.add(graphNodeStack.peek());
-                    graphNodeStack.peek().parents.add(tempuNode);
+                for (IVariableBinding v : setOfVariableBinding)
+                {
+                    graphNodeStack.peek().getParents().addAll(mapForVariableBinding.get(v));
+                    for(GraphNode g : mapForVariableBinding.get(v))
+                    {
+                        g.children.add(graphNodeStack.peek());
+                    }
+                }
+
+                mapForVariableBinding.get(s).add(graphNodeStack.peek());
+
+                GraphNode tempuNode = null;
+                for(GraphNode g : mapForVariableBinding.get(s))
+                {
+                    if(g.node instanceof VariableDeclarationStatement)
+                    {
+                        tempuNode = g;
+                        break;
+                    }
+                }
+                Set<GraphNode> tempuSet = new HashSet<>();
+                tempuSet.add(tempuNode);
+                tempuSet.add(graphNodeStack.peek());
+                mapForVariableBinding.replace(s,mapForVariableBinding.get(s),tempuSet);
+
+                tempuNode.children.add(graphNodeStack.peek());
+                graphNodeStack.peek().parents.add(tempuNode);
+                /*if(setOfVariableBinding.isEmpty())
+                {
+
                 }
                 else
                 {
-                    for (IVariableBinding v : setOfVariableBinding)
-                    {
-                        graphNodeStack.peek().getParents().addAll(mapForVariableBinding.get(v));
-                        for(GraphNode g : mapForVariableBinding.get(v))
-                        {
-                            g.children.add(graphNodeStack.peek());
-                        }
-                        mapForVariableBinding.get(s).add(graphNodeStack.peek());
-                    }
-                }
+
+                }*/
+
                 setOfVariableBinding.clear();
                 marking = 0;
+                graphNodeStack.pop();
             }
 
             public boolean visit (MethodInvocation node) {
