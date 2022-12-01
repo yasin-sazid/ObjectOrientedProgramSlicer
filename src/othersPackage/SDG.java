@@ -239,6 +239,12 @@ public class SDG
                                                         //System.out.println(md.resolveBinding());
                                                         gn.children.add(methodNode);
                                                         methodNode.parents.add(gn);
+
+                                                        if(!((MethodDeclaration) methodNode.node).getReturnType2().toString().equals("void"))
+                                                        {
+                                                            //System.out.println(methodNode.node);
+                                                            handleReturnInteraction (currentNode, methodNode);
+                                                        }
                                                     }
                                                 }
                                             }
@@ -466,6 +472,12 @@ public class SDG
                                                     //System.out.println(md.resolveBinding());
                                                     currentNode.children.add(methodNode);
                                                     methodNode.parents.add(currentNode);
+
+                                                    if(!((MethodDeclaration) methodNode.node).getReturnType2().toString().equals("void"))
+                                                    {
+                                                        //System.out.println(methodNode.node);
+                                                        handleReturnInteraction (currentNode, methodNode);
+                                                    }
                                                 }
                                             }
                                         }
@@ -498,6 +510,24 @@ public class SDG
                         handleClassInteraction(childNode);
                     }
                 }
+            }
+        }
+    }
+
+    private void handleReturnInteraction(GraphNode currentNode, GraphNode methodNode)
+    {
+        for (GraphNode mChild: methodNode.children)
+        {
+            if (mChild.node instanceof ReturnStatement)
+            {
+                /*System.out.println(mChild.node);
+                System.out.println(currentNode.node);*/
+                mChild.children.add(currentNode);
+                currentNode.parents.add(mChild);
+            }
+            else if (mChild.children.size()!=0)
+            {
+                handleReturnInteraction(currentNode, mChild);
             }
         }
     }
@@ -640,6 +670,8 @@ public class SDG
 
     ASTNode currentParent;
 
+    int forwardReturnMarker = 0;
+
     void recursionForForwardSlicing (GraphNode g)
     {
         /*if(g==null)
@@ -667,11 +699,21 @@ public class SDG
                 {
                     pickNode = 0;
                 }
+            }
 
-                if (currentParent instanceof ReturnStatement && g.node instanceof MethodInvocation && gg.node instanceof MethodDeclaration)
-                {
-                    pickNode = 0;
-                }
+            if (currentParent instanceof ReturnStatement && g.node instanceof MethodInvocation && gg.node instanceof MethodDeclaration)
+            {
+                pickNode = 0;
+            }
+
+            if ((currentParent instanceof MethodInvocation || currentParent instanceof VariableDeclarationStatement) && g.node instanceof MethodDeclaration)
+            {
+                forwardReturnMarker = 1;
+            }
+
+            if (forwardReturnMarker==1 && g.node instanceof ReturnStatement)
+            {
+                pickNode = 0;
             }
 
             ASTNode tempu = currentParent;
@@ -680,6 +722,10 @@ public class SDG
             {
                 currentParent = g.node;
                 recursionForForwardSlicing(gg);
+                if (g.node instanceof MethodDeclaration)
+                {
+                    forwardReturnMarker = 0;
+                }
                 currentParent = tempu;
             }
         }
@@ -720,6 +766,8 @@ public class SDG
         return foundStartingNode;
     }
 
+    int backwardReturnMarker = 0;
+
     void recursionForBackwardSlicing (GraphNode g)
     {
         if (backwardSlicingMapForClassLineNumbers.containsKey(g.classFilePath))
@@ -750,14 +798,27 @@ public class SDG
                 {
                     pickNode = 0;
                 }
-
-                if (currentParent instanceof MethodDeclaration && g.node instanceof MethodInvocation && gg.node instanceof ReturnStatement)
-                {
-                    pickNode = 0;
-                }
             }
-            /*System.out.println(g.node.getNodeType());
-            System.out.println(g.node);*/
+
+            if (currentParent instanceof MethodDeclaration && g.node instanceof MethodInvocation && gg.node instanceof ReturnStatement)
+            {
+                pickNode = 0;
+            }
+
+            if ((currentParent instanceof MethodInvocation || currentParent instanceof VariableDeclarationStatement) && g.node instanceof ReturnStatement)
+            {
+                backwardReturnMarker = 1;
+            }
+
+            if (backwardReturnMarker==1 && g.node instanceof MethodDeclaration)
+            {
+                pickNode = 0;
+            }
+
+            /*System.out.println(gg.node.getNodeType());
+            System.out.println(gg.node);
+            System.out.println(backwardReturnMarker);*/
+
             ASTNode tempu = currentParent;
 
             if (pickNode == 1)
@@ -765,6 +826,10 @@ public class SDG
                 //System.out.println("going to child");
                 currentParent = g.node;
                 recursionForBackwardSlicing(gg);
+                if (g.node instanceof ReturnStatement)
+                {
+                    backwardReturnMarker = 0;
+                }
                 currentParent = tempu;
             }
         }

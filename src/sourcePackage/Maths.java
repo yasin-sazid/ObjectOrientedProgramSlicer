@@ -15,4 +15,9 @@ public class Maths {
     {
         return a + b + c;
     }
+
+    public void add (String a)
+    {
+
+    }
 }

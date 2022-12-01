@@ -16,6 +16,7 @@ public class Operation {
     public GraphNode root;
     public String classFilePath;
     public String classQualifiedName;
+    public ASTNode currentMethodInvocationBinding;
     public String [] environment;
     Stack<GraphNode> graphNodeStack = new Stack<GraphNode> ();
     Set<GraphNode> assertNodeSet = new HashSet<>();
@@ -614,7 +615,18 @@ public class Operation {
             }
 
             public void endVisit (VariableDeclarationFragment node) {
-
+                IMethodBinding bind = (IMethodBinding) currentMethodInvocationBinding;
+                if (mapForMethodReturnBinding.containsKey(bind))
+                {
+                    for(GraphNode g : mapForMethodInvocationBinding.get(bind))
+                    {
+                        for(GraphNode n : mapForMethodReturnBinding.get(bind))
+                        {
+                            n.children.add(g);
+                            g.parents.add(n);
+                        }
+                    }
+                }
             }
 
             public boolean visit (VariableDeclarationStatement node) {
