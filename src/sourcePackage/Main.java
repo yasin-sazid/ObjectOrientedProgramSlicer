@@ -8,11 +8,13 @@ public class Main {
         Maths maths = new ExtraExtendedMaths();
 
         int a = maths.add(3, 7);
-        maths.add(3, 4);
+        //a = maths.add(3, 4);
 
         add(3, 5);
 
         maths.add("asa");
+
+        maths.add(2);
     }
 
     public static void printAddition (int a, int b)

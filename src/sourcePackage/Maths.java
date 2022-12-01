@@ -16,6 +16,11 @@ public class Maths {
         return a + b + c;
     }
 
+    public int add (int a)
+    {
+        return a;
+    }
+
     public void add (String a)
     {
 

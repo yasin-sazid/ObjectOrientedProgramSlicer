@@ -516,10 +516,30 @@ public class SDG
 
     private void handleReturnInteraction(GraphNode currentNode, GraphNode methodNode)
     {
+        if (currentNode.node instanceof MethodInvocation)
+        {
+            if (currentNode.parents.size()!=0)
+            {
+                for (GraphNode miParent: currentNode.parents)
+                {
+                    if (miParent.node instanceof VariableDeclarationStatement)
+                    {
+                        int cnLineNum = ((CompilationUnit) currentNode.node.getRoot()).getLineNumber(currentNode.node.getStartPosition());
+                        int mipLineNum = ((CompilationUnit) miParent.node.getRoot()).getLineNumber(miParent.node.getStartPosition());
+                        if (cnLineNum==mipLineNum)
+                        {
+                            currentNode = miParent;
+                        }
+                    }
+                }
+            }
+        }
         for (GraphNode mChild: methodNode.children)
         {
             if (mChild.node instanceof ReturnStatement)
             {
+                /*System.out.println(currentNode.node);
+                System.out.println(mChild.node);*/
                 /*System.out.println(mChild.node);
                 System.out.println(currentNode.node);*/
                 mChild.children.add(currentNode);
@@ -584,6 +604,22 @@ public class SDG
                                 {
                                     gn.children.add(mdChild);
                                     mdChild.parents.add(gn);
+
+                                    /*System.out.println(mdChild.node);
+                                    System.out.println(gn.node);*/
+                                    /*System.out.println("ETA POLYMORPHISM");*/
+                                    /*if (gn.parents.size()!=0)
+                                    {
+                                        for (GraphNode gnParent: gn.parents)
+                                        {
+                                            if (gnParent.node instanceof VariableDeclarationStatement)
+                                            {
+                                                handleReturnInteraction(gn, mdChild);
+                                            }
+                                        }
+                                    }*/
+                                    handleReturnInteraction(gn, mdChild);
+                                    /*System.out.println("ETA POLYMORPHISM SHESH");*/
                                 }
                             }
 
