@@ -638,6 +638,8 @@ public class SDG
         parser();
     }
 
+    ASTNode currentParent;
+
     void recursionForForwardSlicing (GraphNode g)
     {
         /*if(g==null)
@@ -665,11 +667,20 @@ public class SDG
                 {
                     pickNode = 0;
                 }
+
+                if (currentParent instanceof ReturnStatement && g.node instanceof MethodInvocation && gg.node instanceof MethodDeclaration)
+                {
+                    pickNode = 0;
+                }
             }
+
+            ASTNode tempu = currentParent;
 
             if (pickNode == 1)
             {
+                currentParent = g.node;
                 recursionForForwardSlicing(gg);
+                currentParent = tempu;
             }
         }
     }
@@ -739,10 +750,22 @@ public class SDG
                 {
                     pickNode = 0;
                 }
+
+                if (currentParent instanceof MethodDeclaration && g.node instanceof MethodInvocation && gg.node instanceof ReturnStatement)
+                {
+                    pickNode = 0;
+                }
             }
+            /*System.out.println(g.node.getNodeType());
+            System.out.println(g.node);*/
+            ASTNode tempu = currentParent;
+
             if (pickNode == 1)
             {
+                //System.out.println("going to child");
+                currentParent = g.node;
                 recursionForBackwardSlicing(gg);
+                currentParent = tempu;
             }
         }
     }

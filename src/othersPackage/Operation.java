@@ -364,7 +364,7 @@ public class Operation {
             }
 
             public boolean visit (ReturnStatement node) {
-                //System.out.println(node);
+                /*System.out.println(node.getExpression());*/
                 GraphNode temp;
                 temp = new GraphNode(node);
                 temp.classFilePath = classFilePath;
@@ -377,6 +377,33 @@ public class Operation {
                 }
                 if(marker == 1)
                     tryBodySet.add(temp);
+
+
+                Expression ex = node.getExpression();
+                ex.accept(new ASTVisitor() {
+                    public boolean visit (SimpleName child) {
+                        //System.out.println(child);
+                        //System.out.println(setOfVariableBinding.size());
+                        if (!(child.resolveBinding() instanceof ITypeBinding|| child.resolveBinding() instanceof IMethodBinding))
+                        {
+                            if (child.resolveBinding() != null) {
+                                setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
+                            }
+                        }
+                        return false;
+                    }
+                });
+
+                for (IVariableBinding v : setOfVariableBinding)
+                {
+                    temp.getParents().addAll(mapForVariableBinding.get(v));
+                    for(GraphNode g : mapForVariableBinding.get(v))
+                    {
+                        g.children.add(temp);
+                    }
+                }
+                setOfVariableBinding.clear();
+
 
                 if (mapForMethodReturnBinding.containsKey(methodBinding))
                 {

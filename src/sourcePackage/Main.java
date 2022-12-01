@@ -4,7 +4,8 @@ public class Main {
 
     public static void main(String[] args)
     {
-        Maths maths = new ExtraExtendedMaths();
+        int a = add(3,4);
+        /*Maths maths = new ExtraExtendedMaths();
 
         int a = maths.add(3, 4);
 
@@ -14,7 +15,7 @@ public class Main {
 
         int b = 5;
 
-        a = b + a + 3;
+        a = b + a + 3;*/
     }
 
     public static void printAddition (int a, int b)
@@ -24,6 +25,8 @@ public class Main {
 
     public static int add (int a, int b)
     {
-        return a+b;
+        int c = a + b;
+        c = c - 1;
+        return c;
     }
 }
