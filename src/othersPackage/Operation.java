@@ -60,7 +60,7 @@ public class Operation {
     }
 
     public void parse(String str) {
-        ASTParser parser = ASTParser.newParser(AST.JLS10);
+        ASTParser parser = ASTParser.newParser(AST.JLS8);
         parser.setResolveBindings(true);
         parser.setBindingsRecovery(true);
         parser.setSource(str.toCharArray());

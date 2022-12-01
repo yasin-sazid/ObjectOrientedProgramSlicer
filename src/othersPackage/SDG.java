@@ -1,7 +1,5 @@
 package othersPackage;
 
-import org.eclipse.core.expressions.IVariableResolver;
-import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.dom.*;
 
 import java.io.BufferedReader;
@@ -893,7 +891,7 @@ public class SDG
         GraphNode classRoot = mapForPathClassRoot.get(criterionFilePath);
         //System.out.println(classRoot.node);
 
-        ASTParser parser = ASTParser.newParser(AST.JLS10);
+        ASTParser parser = ASTParser.newParser(AST.JLS8);
         parser.setResolveBindings(true);
         parser.setBindingsRecovery(true);
         parser.setSource(readFileToString(criterionFilePath).toCharArray());

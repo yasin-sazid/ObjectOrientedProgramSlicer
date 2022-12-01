@@ -7,11 +7,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="richtextfx-0.10.9" level="project" />
-    <orderEntry type="library" name="flowless-0.6.10" level="project" />
-    <orderEntry type="library" name="reactfx-2.0-M5" level="project" />
-    <orderEntry type="library" name="undofx-2.1.1" level="project" />
     <orderEntry type="library" name="richtextfx-fat-0.10.9" level="project" />
-    <orderEntry type="library" name="commons-collections-3.2.1" level="project" />
+    <orderEntry type="library" name="eclipse-astparser-8.1" level="project" />
   </component>
 </module>

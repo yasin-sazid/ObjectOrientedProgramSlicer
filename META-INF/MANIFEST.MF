@@ -1,3 +1,4 @@
 Manifest-Version: 1.0
-Main-Class: sample.Launcher
+Main-Class: sample.Main
+Class-Path: C:\Users\Hp\Desktop\SPL-UI-Test\src
 

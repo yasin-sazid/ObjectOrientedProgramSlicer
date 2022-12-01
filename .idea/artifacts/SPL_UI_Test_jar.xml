@@ -1,14 +1,27 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="SPL-UI-Test:jar">
-    <output-path>$PROJECT_DIR$</output-path>
+  <artifact type="jar" build-on-make="true" name="SPL-UI-Test:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/SPL_UI_Test_jar</output-path>
     <root id="archive" name="SPL-UI-Test.jar">
-      <element id="module-output" name="resources" />
       <element id="module-output" name="SPL-UI-Test" />
-      <element id="extracted-dir" path="$USER_HOME$/Downloads/richtextfx-0.10.9.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Downloads/jar_files/reactfx-2.0-M5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-collections-3.2.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-configuration-1.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-lang-2.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-logging-1.1.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/org.eclipse.core.commands-3.9.300.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/org.eclipse.core.contenttype-3.7.300.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/org.eclipse.core.expressions-3.6.300.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/org.eclipse.core.filesystem-1.7.300.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/org.eclipse.core.jobs-3.10.300.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/org.eclipse.core.resources-3.13.300.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/org.eclipse.core.runtime-3.15.200.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/org.eclipse.equinox.app-1.4.100.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/org.eclipse.equinox.common-3.10.300.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/org.eclipse.equinox.preferences-3.7.300.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/org.eclipse.equinox.registry-3.8.300.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/org.eclipse.jdt.core-3.14.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/org.eclipse.osgi-3.13.300.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/org.eclipse.text-3.8.100.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$USER_HOME$/Downloads/richtextfx-fat-0.10.9.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Downloads/jar_files(1)/undofx-2.1.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Downloads/jar_files/flowless-0.6.10.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
