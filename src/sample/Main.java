@@ -34,6 +34,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.GenericStyledArea;
@@ -44,7 +45,12 @@ import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.collection.ListModification;
 import org.reactfx.Subscription;
+import othersPackage.GraphNode;
 import othersPackage.SDG;
+import visGraphPackage.java.api.VisFx;
+import visGraphPackage.java.graph.VisEdge;
+import visGraphPackage.java.graph.VisGraph;
+import visGraphPackage.java.graph.VisNode;
 
 public class Main extends Application {
 
@@ -166,6 +172,7 @@ public class Main extends Application {
 
                         try {
                             SDG sdg = new SDG(folderProcessor.getFolder().getAbsolutePath(), selected2, criterionLineNumber);
+                            //createGraph(primaryStage, sdg.sdgRoot);
                             if (sdg.isValidCriterion())
                             {
                                 backwardSlicingMapForClassLineNumbers = sdg.getBackwardSlicingMapForClassLineNumbers();
@@ -450,6 +457,8 @@ public class Main extends Application {
 
         VBox vBox = new VBox();
 
+        //VisGraph as = new VisGraph ();
+
         imageView.setFitWidth(400);
         imageView.setFitHeight(200);
         button.setPrefSize(150, 30);
@@ -469,5 +478,67 @@ public class Main extends Application {
         primaryStage.setTitle("OOPSlicer");
         primaryStage.getIcons().add(image);
         primaryStage.show();
+    }
+
+    public static int nodeCounter = 0;
+
+    public static Set<VisNode> visited = new HashSet<>();
+
+    public static void createEdge(VisGraph graph, Stage primaryStage, VisNode node1, GraphNode root)
+    {
+
+        for (GraphNode currentNode: root.children)
+        {
+            /*int pickNode = 1;
+            for (VisNode n: visited)
+            {
+                if (currentNode.node.getStartPosition()==n.node.getStartPosition() && currentNode.getNodeLineString().equals(n.getLabel()))
+                {
+                    pickNode = 0;
+                }
+            }*/
+
+            if (currentNode.visNode!=null)
+            {
+                VisNode node2 = graph.getNode(currentNode.visNode.getId()); //new VisNode(nodeCounter++,currentNode.getNodeLineString());
+                //Add an edge
+                VisEdge edge = new VisEdge(node1,node2,"to","");
+                //Add nodes and edges to the graph.
+                graph.addNodes(node1,node2);
+                graph.addEdges(edge);
+
+                //visited.add(currentNode);
+            }
+            else
+            {
+                VisNode node2 = new VisNode(nodeCounter++,currentNode.getNodeLineString());
+                //Add an edge
+                VisEdge edge = new VisEdge(node1,node2,"to","");
+                //Add nodes and edges to the graph.
+                graph.addNodes(node1,node2);
+                graph.addEdges(edge);
+
+                currentNode.visNode = node2;
+
+                if (currentNode.children.size()!=0)
+                {
+                    createEdge(graph, primaryStage, node2, currentNode);
+                }
+            }
+        }
+    }
+
+    public static void createGraph (Stage primaryStage, GraphNode root)
+    {
+        VisGraph graph = new VisGraph();
+
+        //Create the nodes
+
+        VisNode node1 = new VisNode(nodeCounter++,"Enter");
+
+        createEdge(graph, primaryStage, node1, root);
+
+        //Graph the network passing the graph itself and a JavaFX Stage.
+        VisFx.graphNetwork(graph,primaryStage);
     }
 }

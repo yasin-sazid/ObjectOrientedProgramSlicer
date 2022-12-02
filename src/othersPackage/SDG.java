@@ -782,7 +782,7 @@ public class SDG
             int pickNode = 1;
             for (GraphNode n: visited)
             {
-                if (g.node.getStartPosition()==n.node.getStartPosition())
+                if (g.node.getStartPosition()==n.node.getStartPosition() && g.getNodeLineString().equals(n.getNodeLineString()))
                 {
                     pickNode = 0;
                 }

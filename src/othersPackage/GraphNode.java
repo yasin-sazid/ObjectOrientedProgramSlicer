@@ -1,8 +1,14 @@
 package othersPackage;
 
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import visGraphPackage.java.graph.VisNode;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashSet;
+import java.util.Scanner;
 import java.util.Set;
 
 public class GraphNode {
@@ -12,6 +18,8 @@ public class GraphNode {
     public ASTNode node;
     public Set<GraphNode> parents;
     public Set<GraphNode> children;
+
+    public VisNode visNode = null;
 
     public GraphNode() {
         parents = new HashSet<GraphNode>();
@@ -54,5 +62,33 @@ public class GraphNode {
 
     public void setClassFilePath(String classFilePath) {
         this.classFilePath = classFilePath;
+    }
+
+    public String getNodeLineString ()
+    {
+        String nodeLineString = "";
+
+        String rootString = node.getRoot().toString();
+
+        int lineNumber = ((CompilationUnit) node.getRoot()).getLineNumber(node.getStartPosition());
+
+        int counter = 1;
+
+        Scanner scanner = new Scanner(rootString);
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+
+            if (lineNumber==counter)
+            {
+                nodeLineString = line;
+                break;
+            }
+
+            counter++;
+            // process the line
+        }
+        scanner.close();
+
+        return nodeLineString;
     }
 }
