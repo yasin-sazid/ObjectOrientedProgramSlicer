@@ -68,13 +68,35 @@ public class GraphNode {
     {
         String nodeLineString = "";
 
-        String rootString = node.getRoot().toString();
+        /*String rootString = node.getRoot().toString();*/
 
         int lineNumber = ((CompilationUnit) node.getRoot()).getLineNumber(node.getStartPosition());
 
         int counter = 1;
 
-        Scanner scanner = new Scanner(rootString);
+        BufferedReader reader;
+
+        try {
+            reader = new BufferedReader(new FileReader(classFilePath));
+            String line = reader.readLine();
+
+            while (line != null) {
+                if (lineNumber==counter)
+                {
+                    nodeLineString = line;
+                    break;
+                }
+                // read next line
+                counter++;
+                line = reader.readLine();
+            }
+
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        /*Scanner scanner = new Scanner(rootString);
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
 
@@ -87,7 +109,14 @@ public class GraphNode {
             counter++;
             // process the line
         }
-        scanner.close();
+        scanner.close();*/
+
+        System.out.println("Node");
+        System.out.println(node);
+        System.out.println("Node Line");
+        System.out.println(lineNumber);
+        System.out.println("Line String");
+        System.out.println(nodeLineString);
 
         return nodeLineString;
     }
