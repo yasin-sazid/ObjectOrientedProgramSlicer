@@ -1,6 +1,7 @@
 package sample;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
@@ -15,12 +16,20 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -54,6 +63,17 @@ public class Main extends Application {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         //directoryChooser.setInitialDirectory(new File("src"));
         FolderProcessor folderProcessor = new FolderProcessor();
+
+        Text text = new Text(String.format("Slicing or program slicing is a technique used in software testing which takes a slice or a group of program statements in the program for testing particular test conditions or cases that may \n" +
+                "affect a value at a particular point of interest. It can also be used for the purpose of debugging in order to find the bugs more easily and quickly. \n"));
+        text.setX(50);
+        text.setY(50);
+
+        Image image = new Image(new FileInputStream("C:\\Users\\Hp\\Downloads\\OOPSlicer.png"));
+        Rectangle rectangle = new Rectangle();
+        rectangle.setFill(new ImagePattern(image));
+        ImageView imageView = new ImageView(image);
+        //alert.setGraphic(dp);
 
         Button button = new Button("Select Project");
         button.setOnAction(e -> {
@@ -292,7 +312,7 @@ public class Main extends Application {
 
                         scene.getStylesheets().add("java-keywords.css");
                         primaryStage.setScene(scene);
-                        primaryStage.setTitle("Java Keywords Demo");
+                        primaryStage.setTitle("OOPSlicer");
                         primaryStage.show();
                     }
                     catch (NumberFormatException ex)
@@ -358,7 +378,7 @@ public class Main extends Application {
 
                                 scene.getStylesheets().add("java-keywords.css");
                                 primaryStage.setScene(scene);
-                                primaryStage.setTitle("Java Keywords Demo");
+                                primaryStage.setTitle("OOPSlicer");
                                 primaryStage.show();
                             }
                         };
@@ -385,30 +405,69 @@ public class Main extends Application {
                 slicingOperation.setOnAction(selectSlicingOperation);
 
 
+                VBox vBox = new VBox();
+
+                vBox.setPadding(new Insets(150));
+
+                /*slicingOperation.setMinHeight(30);
+                slicingOperation.setMinWidth(100);*/
+
+                slicingOperation.setPrefSize(150, 30);
+                slicer.setPrefSize(150, 30);
+                lineNumber.setPrefSize(150, 30);
+
+                /*slicer.setMinHeight(30);
+                slicer.setMinWidth(100);
+
+                lineNumber.setMinHeight(30);
+                lineNumber.setMinWidth(100);*/
+
+                vBox.getChildren().add(lineNumber);
+                vBox.setMargin(lineNumber, new Insets(10));
+                vBox.getChildren().add(slicingOperation);
+                vBox.setMargin(slicingOperation, new Insets(10));
+                vBox.getChildren().add(slicer);
+                vBox.setMargin(slicer, new Insets(10));
+
                 GridPane root = new GridPane();
                 root.add(combo_box, 0, 0);
                 root.add(new VirtualizedScrollPane<>(codeArea), 0, 1);
-                root.add(lineNumber, 1, 1);
-                root.add(slicingOperation, 2, 1);
-                root.add(slicer, 3, 1);
+                root.add(vBox, 1, 1);
+                /*root.add(lineNumber, 2, 1);
+                root.add(slicingOperation, 2, 2);
+                root.add(slicer, 2, 3);*/
 
                 Scene scene = new Scene(root, 1000, 500);
 
                 scene.getStylesheets().add("java-keywords.css");
                 primaryStage.setScene(scene);
-                primaryStage.setTitle("Java Keywords Demo");
+                primaryStage.setTitle("OOPSlicer");
                 primaryStage.show();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         });
 
-        StackPane root = new StackPane();
-        root.getChildren().add(button);
+        VBox vBox = new VBox();
+
+        imageView.setFitWidth(400);
+        imageView.setFitHeight(200);
+        button.setPrefSize(150, 30);
+        vBox.getChildren().add(imageView);
+        vBox.setMargin(imageView, new Insets(100, 300, 110, 300));
+        vBox.getChildren().add(button);
+        vBox.setMargin(button, new Insets(10, 425, 110, 425));
+
+        AnchorPane root = new AnchorPane();
+
+        //root.setPadding(new Insets(100, 200, 100, 200));
+        //root.add(imageView, 0, 0);
+        root.getChildren().add(vBox);
         Scene scene = new Scene(root, 1000, 500);
         scene.getStylesheets().add("java-keywords.css");
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Java Keywords Demo");
+        primaryStage.setTitle("OOPSlicer");
+        primaryStage.getIcons().add(image);
         primaryStage.show();
     }
 }
