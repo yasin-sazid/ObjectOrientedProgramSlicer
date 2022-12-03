@@ -45,6 +45,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import javafx.stage.StageStyle;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
@@ -559,11 +560,11 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    public static int nodeCounter = 0;
+    public int nodeCounter = 0;
 
-    public static Set<VisNode> visited = new HashSet<>();
+    public Set<VisNode> visited = new HashSet<>();
 
-    public static void createEdge(VisGraph graph, Stage primaryStage, VisNode node1, GraphNode root)
+    public void createEdge(VisGraph graph, Stage primaryStage, VisNode node1, GraphNode root)
     {
 
         for (GraphNode currentNode: root.children)
@@ -584,18 +585,55 @@ public class Main extends Application {
                 VisEdge edge = new VisEdge(node1,node2,"to","");
                 //Add nodes and edges to the graph.
                 graph.addNodes(node1,node2);
-                graph.addEdges(edge);
+                if (!graph.getEdgesJson().contains(edge.toJson()))
+                {
+                    graph.addEdges(edge);
+                }
 
                 //visited.add(currentNode);
             }
             else
             {
-                VisNode node2 = new VisNode(nodeCounter++,currentNode.getNodeLineString());
+                int pickNode = 1;
+                VisNode node2 = null;
+
+                for (GraphNode parent: currentNode.parents)
+                {
+                    if (parent != null && parent.visNode != null)
+                    {
+                        if (parent.getNodeLineString().equals(currentNode.getNodeLineString()))
+                        {
+                            node2 = graph.getNode(parent.visNode.getId());
+                            pickNode = 0;
+                        }
+                    }
+                }
+
+                for (GraphNode child: currentNode.children)
+                {
+                    if (child != null && child.visNode != null)
+                    {
+                        if (child.getNodeLineString().equals(currentNode.getNodeLineString()))
+                        {
+                            node2 = graph.getNode(child.visNode.getId());
+                            pickNode = 0;
+                        }
+                    }
+                }
+
+                if (pickNode==1)
+                {
+                    node2 = new VisNode(nodeCounter++, currentNode.getNodeLineString());
+                }
                 //Add an edge
                 VisEdge edge = new VisEdge(node1,node2,"to","");
                 //Add nodes and edges to the graph.
                 graph.addNodes(node1,node2);
-                graph.addEdges(edge);
+
+                if (!graph.getEdgesJson().contains(edge.toJson()))
+                {
+                    graph.addEdges(edge);
+                }
 
                 currentNode.visNode = node2;
 
@@ -607,7 +645,7 @@ public class Main extends Application {
         }
     }
 
-    public static void createGraph (Stage primaryStage, GraphNode root)
+    public void createGraph (Stage primaryStage, GraphNode root)
     {
         VisGraph graph = new VisGraph();
 

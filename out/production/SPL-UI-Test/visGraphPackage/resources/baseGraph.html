@@ -37,8 +37,8 @@
         nodes = new vis.DataSet(nodesArray);
         edges = new vis.DataSet(edgesArray);
         network.setData({nodes:nodes, edges:edges});
-        //network.setOptions({layout:{hierarchical:{nodeSpacing: 10, parentCentralization: true, sortMethod:'directed'}}});
-        network.setOptions({layout:{improvedLayout}});
+        network.setOptions({layout:{improvedLayout:true}});
+        //network.setOptions({layout:{improvedLayout}});
     }
 </script>
 

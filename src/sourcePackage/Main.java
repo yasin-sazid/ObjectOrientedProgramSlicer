@@ -12,11 +12,7 @@ public class Main {
 
         add(3, 5);
 
-        maths.add("asa");
 
-        maths.add("asa");
-
-        maths.add(2);
     }
 
     public static void printAddition (int a, int b)

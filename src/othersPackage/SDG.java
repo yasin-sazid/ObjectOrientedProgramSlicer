@@ -706,6 +706,8 @@ public class SDG
 
     int forwardReturnMarker = 0;
 
+    int forwardDeclarationMarker = 0;
+
     void recursionForForwardSlicing (GraphNode g)
     {
         /*if(g==null)
@@ -735,7 +737,18 @@ public class SDG
                 }
             }
 
-            if (currentParent instanceof ReturnStatement && g.node instanceof MethodInvocation && gg.node instanceof MethodDeclaration)
+            /*if (currentParent instanceof ReturnStatement && g.node instanceof MethodInvocation && gg.node instanceof MethodDeclaration)
+            {
+                pickNode = 0;
+            }*/
+
+            if (currentParent instanceof ReturnStatement && (g.node instanceof MethodInvocation || g.node instanceof VariableDeclarationStatement))
+            {
+                forwardDeclarationMarker = 1;
+                //pickNode = 0;
+            }
+
+            if (forwardDeclarationMarker==1 && gg.node instanceof MethodDeclaration)
             {
                 pickNode = 0;
             }
@@ -759,6 +772,10 @@ public class SDG
                 if (g.node instanceof MethodDeclaration)
                 {
                     forwardReturnMarker = 0;
+                }
+                if (g.node instanceof MethodInvocation)
+                {
+                    forwardDeclarationMarker = 0;
                 }
                 currentParent = tempu;
             }
@@ -802,6 +819,7 @@ public class SDG
     }
 
     int backwardReturnMarker = 0;
+    int backWardDeclarationMarker = 0;
 
     void recursionForBackwardSlicing (GraphNode g)
     {
@@ -835,7 +853,13 @@ public class SDG
                 }
             }
 
-            if (currentParent instanceof MethodDeclaration && g.node instanceof MethodInvocation && gg.node instanceof ReturnStatement)
+            if (currentParent instanceof MethodDeclaration && (g.node instanceof MethodInvocation || g.node instanceof VariableDeclarationStatement))
+            {
+                backWardDeclarationMarker = 1;
+                //pickNode = 0;
+            }
+
+            if (backWardDeclarationMarker==1 && gg.node instanceof ReturnStatement)
             {
                 pickNode = 0;
             }
@@ -864,6 +888,10 @@ public class SDG
                 if (g.node instanceof ReturnStatement)
                 {
                     backwardReturnMarker = 0;
+                }
+                if (g.node instanceof MethodInvocation)
+                {
+                    backWardDeclarationMarker = 0;
                 }
                 currentParent = tempu;
             }
