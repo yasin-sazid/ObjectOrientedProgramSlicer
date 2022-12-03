@@ -385,7 +385,7 @@ public class Main extends Application {
             Image slicerImage = new Image(new FileInputStream("resources/slice.png"));
             ImageView slicerImageView = new ImageView(slicerImage);
             slicerImageView.setSmooth(true);
-            slicerImageView.setFitHeight(20);
+            slicerImageView.setFitHeight(15);
             slicerImageView.setPreserveRatio(true);
             slicerImageView.setFitWidth(150);
             //slicerImageView.setFitWidth(150);
@@ -430,11 +430,12 @@ public class Main extends Application {
 
                             VBox vBox = new VBox();
 
-                            vBox.setPadding(new Insets(150));
+                            vBox.setPadding(new Insets(150,150,150,165));
 
                             slicingOperation.setPrefSize(150, 30);
                             slicer.setPrefSize(150, 30);
                             lineNumber.setPrefSize(150, 30);
+                            lineNumber.setMaxSize(150, 30);
 
                             vBox.getChildren().add(lineNumber);
                             vBox.setMargin(lineNumber, new Insets(10));
@@ -443,10 +444,28 @@ public class Main extends Application {
                             vBox.getChildren().add(slicer);
                             vBox.setMargin(slicer, new Insets(10));
 
+                            Button newProject = new Button("New Project");
+                            newProject.setOnAction(newProjectEvent -> {
+                                openNewProject(primaryStage);
+                            });
+
+                            newProject.setPrefSize(500, 30);
+
+                            Button newSlice = new Button("New Slice");
+                            newSlice.setOnAction(newSliceEvent -> {
+                                showNewProject(primaryStage);
+                            });
+
+                            newSlice.setPrefSize(500, 30);
+
+                            newSlice.setDisable(true);
+
                             GridPane root = new GridPane();
                             root.add(combo_box, 0, 0);
                             root.add(new VirtualizedScrollPane<>(codeArea), 0, 1);
+                            root.add(newSlice, 0, 2);
                             root.add(vBox, 1, 1);
+                            root.add(newProject, 1, 2);
 
                             Scene scene = new Scene(root, 1000, 500);
 
@@ -481,7 +500,7 @@ public class Main extends Application {
 
             VBox vBox = new VBox();
 
-            vBox.setPadding(new Insets(150));
+            vBox.setPadding(new Insets(150,150,150,165));
 
                 /*slicingOperation.setMinHeight(30);
                 slicingOperation.setMinWidth(100);*/
@@ -489,6 +508,7 @@ public class Main extends Application {
             slicingOperation.setPrefSize(150, 30);
             slicer.setPrefSize(150, 30);
             lineNumber.setPrefSize(150, 30);
+            lineNumber.setMaxSize(150, 30);
 
                 /*slicer.setMinHeight(30);
                 slicer.setMinWidth(100);
@@ -503,10 +523,28 @@ public class Main extends Application {
             vBox.getChildren().add(slicer);
             vBox.setMargin(slicer, new Insets(10));
 
+            Button newProject = new Button("New Project");
+            newProject.setOnAction(newProjectEvent -> {
+                openNewProject(primaryStage);
+            });
+
+            newProject.setPrefSize(500, 30);
+
+            Button newSlice = new Button("New Slice");
+            newSlice.setOnAction(newSliceEvent -> {
+                showNewProject(primaryStage);
+            });
+
+            newSlice.setPrefSize(500, 30);
+
+            newSlice.setDisable(true);
+
             GridPane root = new GridPane();
             root.add(combo_box, 0, 0);
             root.add(new VirtualizedScrollPane<>(codeArea), 0, 1);
+            root.add(newSlice, 0, 2);
             root.add(vBox, 1, 1);
+            root.add(newProject, 1, 2);
                 /*root.add(lineNumber, 2, 1);
                 root.add(slicingOperation, 2, 2);
                 root.add(slicer, 2, 3);*/
