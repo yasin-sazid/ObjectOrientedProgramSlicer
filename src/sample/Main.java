@@ -164,7 +164,7 @@ public class Main extends Application {
 
             try {
                 sdg = new SDG(folderProcessor.getFolder().getAbsolutePath(), selected2, criterionLineNumber);
-                createGraph(primaryStage, sdg.sdgRoot);
+                //createGraph(primaryStage, sdg.sdgRoot);
                 if (sdg.isValidCriterion()) {
                     backwardSlicingMapForClassLineNumbers = sdg.getBackwardSlicingMapForClassLineNumbers();
                     forwardSlicingMapForClassLineNumbers = sdg.getForwardSlicingMapForClassLineNumbers();
@@ -282,7 +282,7 @@ public class Main extends Application {
 
             Button newSlice = new Button("New Slice");
             newSlice.setOnAction(newSliceEvent -> {
-                showGraph(primaryStage);
+                showNewProject(primaryStage);
             });
 
             newSlice.setPrefSize(500, 30);
