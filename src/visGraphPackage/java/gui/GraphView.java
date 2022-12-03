@@ -28,7 +28,7 @@ public class GraphView extends Application {
     public void start(Stage stage) {
         // create the scene
         stage.setTitle("Network view");
-        Scene scene = new Scene(new Browser(graph), 750, 500, Color.web("#666970"));
+        Scene scene = new Scene(new Browser(graph), 1000, 500, Color.web("#666970"));
         stage.setScene(scene);
         stage.show();
     }
@@ -72,7 +72,7 @@ class Browser extends Region {
 
     @Override
     protected double computePrefWidth(double height) {
-        return 750;
+        return 1000;
     }
 
     @Override

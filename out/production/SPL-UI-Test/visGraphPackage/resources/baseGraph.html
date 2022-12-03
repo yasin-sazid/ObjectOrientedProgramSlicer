@@ -8,8 +8,8 @@
 
     <style type="text/css">
         #mynetwork {
-            width: 100%;
-            height: 100vh;
+            width: 200%;
+            height: 200vh;
             border: 1px solid lightgray;
         }
     </style>
@@ -37,7 +37,8 @@
         nodes = new vis.DataSet(nodesArray);
         edges = new vis.DataSet(edgesArray);
         network.setData({nodes:nodes, edges:edges});
-        network.setOptions({layout:{hierarchical:{nodeSpacing: 10, parentCentralization: true, direction: "LR", sortMethod:'directed'}}});
+        //network.setOptions({layout:{hierarchical:{nodeSpacing: 10, parentCentralization: true, sortMethod:'directed'}}});
+        network.setOptions({layout:{improvedLayout}});
     }
 </script>
 
