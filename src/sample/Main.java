@@ -115,7 +115,7 @@ public class Main extends Application {
             codeArea.clear();
             for (int i = 0; i < folderProcessor.getPathCodeMap().get(combo_box.getValue()).length; i++) {
                 if (i + 1 == criterionLineNumber) {
-                    codeArea.replace(codeArea.getLength(), codeArea.getLength(), folderProcessor.getPathCodeMap().get(combo_box.getValue())[i], "-rtfx-background-color: red;");
+                    codeArea.replace(codeArea.getLength(), codeArea.getLength(), folderProcessor.getPathCodeMap().get(combo_box.getValue())[i], "-rtfx-background-color: grey;");
                     codeArea.replace(codeArea.getLength(), codeArea.getLength(), "\n", "");
                 } else {
                     codeArea.replace(codeArea.getLength(), codeArea.getLength(), folderProcessor.getPathCodeMap().get(combo_box.getValue())[i], "-rtfx-background-color: white;");
@@ -123,9 +123,7 @@ public class Main extends Application {
                 }
             }
 
-            ComboBox combo_box2 =
-                    new ComboBox(FXCollections
-                            .observableArrayList(folderProcessor.getPathCodeMap().keySet().toArray()));
+
 
             // Label to display the selected menuitem
             //Label selected = new Label((String) folderProcessor.getPathCodeMap().keySet().toArray()[0]);
@@ -145,6 +143,33 @@ public class Main extends Application {
 
             }
 
+            List<String> listOfImpactedClassPaths = new ArrayList<>();
+
+            if (slicingType.equals("Backward Slicing"))
+            {
+                for (String classPath: backwardSlicingMapForClassLineNumbers.keySet())
+                {
+                    if (backwardSlicingMapForClassLineNumbers.get(classPath).size()>0)
+                    {
+                        listOfImpactedClassPaths.add(classPath);
+                    }
+                }
+            }
+            else if (slicingType.equals("Forward Slicing"))
+            {
+                for (String classPath: forwardSlicingMapForClassLineNumbers.keySet())
+                {
+                    if (forwardSlicingMapForClassLineNumbers.get(classPath).size()>0)
+                    {
+                        listOfImpactedClassPaths.add(classPath);
+                    }
+                }
+            }
+
+            ComboBox combo_box2 =
+                    new ComboBox(FXCollections
+                            .observableArrayList(listOfImpactedClassPaths));
+
             combo_box2.setValue(selected2);
 
             InlineCssTextArea codeArea2 = new InlineCssTextArea();
@@ -159,7 +184,7 @@ public class Main extends Application {
                                 /*System.out.println(slicingType);
                                 System.out.println("dhukesi");*/
                     if (backwardSlicingMapForClassLineNumbers.get(selected2).contains(i + 1)) {
-                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
+                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: grey;");
                         codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
                     } else {
                         codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
@@ -168,7 +193,7 @@ public class Main extends Application {
                 }
                 if (slicingType.equals("Forward Slicing")) {
                     if (forwardSlicingMapForClassLineNumbers.get(selected2).contains(i + 1)) {
-                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
+                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: grey;");
                         codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
                     } else {
                         codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
@@ -193,7 +218,7 @@ public class Main extends Application {
                                 if (slicingType.equals("Backward Slicing")) {
                                     if (backwardSlicingMapForClassLineNumbers.containsKey(combo_box2.getValue())) {
                                         if (backwardSlicingMapForClassLineNumbers.get(combo_box2.getValue()).contains(i + 1)) {
-                                            codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
+                                            codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: grey;");
                                             codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
                                         } else {
                                             codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
@@ -207,7 +232,7 @@ public class Main extends Application {
                                 if (slicingType.equals("Forward Slicing")) {
                                     if (forwardSlicingMapForClassLineNumbers.containsKey(combo_box2.getValue())) {
                                         if (forwardSlicingMapForClassLineNumbers.get(combo_box2.getValue()).contains(i + 1)) {
-                                            codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
+                                            codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: grey;");
                                             codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
                                         } else {
                                             codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
