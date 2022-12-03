@@ -603,8 +603,7 @@ public class SDG
                                     gn.children.add(mdChild);
                                     mdChild.parents.add(gn);
 
-                                    /*System.out.println(mdChild.node);
-                                    System.out.println(gn.node);*/
+                                    //System.out.println(gn.node);
                                     /*System.out.println("ETA POLYMORPHISM");*/
                                     /*if (gn.parents.size()!=0)
                                     {
@@ -629,23 +628,29 @@ public class SDG
 
         //System.out.println(classRoot.node);
 
-        if (superClassType.resolveBinding().getSuperclass()!=null)
-        {
-            for (GraphNode classRoot2: classRoots)
-            {
-                if (classRoot2.classQualifiedName.equals(qualifiedSuperClassName))
-                {
-                    superClassType = ((TypeDeclaration)classRoot2.node).getSuperclassType();
-                    break;
-                }
-            }
+        //System.out.println(superClassType.resolveBinding().);
 
-            if (superClassType!=null)
+        for (GraphNode classRoot2: classRoots)
+        {
+            if (classRoot2.classQualifiedName.equals(qualifiedSuperClassName))
             {
-                //System.out.println(superClassType.resolveBinding().getQualifiedName());
-                handleSuperClass(classRoot, superClassType);
+                superClassType = ((TypeDeclaration)classRoot2.node).getSuperclassType();
+                break;
             }
         }
+
+        if (superClassType!=null)
+        {
+            //System.out.println(superClassType.toString());
+            //System.out.println(superClassType.resolveBinding().getQualifiedName());
+            handleSuperClass(classRoot, superClassType);
+        }
+
+        /*if (superClassType.resolveBinding().getSuperclass()!=null)
+        {
+            System.out.println(qualifiedSuperClassName);
+
+        }*/
     }
 
     public void handlePolymorphism ()
