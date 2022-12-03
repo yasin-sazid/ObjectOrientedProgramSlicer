@@ -2,6 +2,7 @@ package sample;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
@@ -10,6 +11,14 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.brunomnsilva.smartgraph.graph.Digraph;
+import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
+import com.brunomnsilva.smartgraph.graph.Graph;
+import com.brunomnsilva.smartgraph.graph.GraphEdgeList;
+import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
+import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
+import com.brunomnsilva.smartgraph.graphview.SmartGraphVertexNode;
+import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import javafx.animation.FillTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -27,6 +36,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
@@ -34,6 +44,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javafx.stage.StageStyle;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
@@ -55,9 +66,25 @@ import visGraphPackage.java.graph.VisNode;
 public class Main extends Application {
 
     Map<String, Set<Integer>> forwardSlicingMapForClassLineNumbers;
-    Map<String,Set<Integer>> backwardSlicingMapForClassLineNumbers;
+    Map<String, Set<Integer>> backwardSlicingMapForClassLineNumbers;
+
+    DirectoryChooser directoryChooser = new DirectoryChooser();
+    //directoryChooser.setInitialDirectory(new File("src"));
+    FolderProcessor folderProcessor = new FolderProcessor();
+
+    File selectedDirectory;
+
+    ComboBox combo_box =
+            new ComboBox(FXCollections
+                    .observableArrayList(folderProcessor.getPathCodeMap().keySet().toArray()));
+
+    InlineCssTextArea codeArea = new InlineCssTextArea();
+
+    TextField lineNumber = new TextField("Enter Line Number");
 
     String slicingType = "Backward Slicing";
+
+    SDG sdg;
 
     public static void main(String[] args) {
         launch(args);
@@ -65,363 +92,389 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
+        //primaryStage.setResizable(false);
+        showHome(primaryStage);
+    }
 
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        //directoryChooser.setInitialDirectory(new File("src"));
-        FolderProcessor folderProcessor = new FolderProcessor();
+    public void showGraph (Stage primaryStage)
+    {
+        Digraph<String, String> g = new DigraphEdgeList<>();
 
-        Text text = new Text(String.format("Slicing or program slicing is a technique used in software testing which takes a slice or a group of program statements in the program for testing particular test conditions or cases that may \n" +
-                "affect a value at a particular point of interest. It can also be used for the purpose of debugging in order to find the bugs more easily and quickly. \n"));
-        text.setX(50);
-        text.setY(50);
+        g.insertVertex("A");
+        g.insertVertex("A");
+        g.insertVertex("B");
+        g.insertVertex("C");
+        g.insertVertex("D");
+        g.insertVertex("E");
+        g.insertVertex("F");
 
-        Image image = new Image(new FileInputStream("C:\\Users\\Hp\\Downloads\\OOPSlicer.png"));
-        Rectangle rectangle = new Rectangle();
-        rectangle.setFill(new ImagePattern(image));
-        ImageView imageView = new ImageView(image);
-        //alert.setGraphic(dp);
+        g.insertEdge("A", "B", "AB");
+        g.insertEdge("B", "A", "AB2");
+        g.insertEdge("A", "C", "AC");
+        g.insertEdge("A", "D", "AD");
+        g.insertEdge("B", "C", "BC");
+        g.insertEdge("C", "D", "CD");
+        g.insertEdge("B", "E", "BE");
+        g.insertEdge("F", "D", "DF");
+        g.insertEdge("F", "D", "DF2");
 
-        Button button = new Button("Select Project");
-        button.setOnAction(e -> {
-            File selectedDirectory = directoryChooser.showDialog(primaryStage);
+        //g.insertEdge("A", "A", "Loop");
 
-            try {
-                folderProcessor.setFolder(selectedDirectory.getAbsolutePath());
+        //g.ge
 
-                ComboBox combo_box =
-                        new ComboBox(FXCollections
-                                .observableArrayList(folderProcessor.getPathCodeMap().keySet().toArray()));
+        SmartPlacementStrategy strategy = new SmartCircularSortedPlacementStrategy();
+        SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, strategy);
+        Scene scene = new Scene(graphView, 1024, 768);
 
-                // Label to display the selected menuitem
-                //Label selected = new Label((String) folderProcessor.getPathCodeMap().keySet().toArray()[0]);
+        primaryStage.setTitle("JavaFXGraph Visualization");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+        //IMPORTANT - Called after scene is displayed so we can have width and height values
+        graphView.init();
+    }
 
-                String selected = folderProcessor.getPathCodeMap().keySet().toArray()[0].toString();
-                combo_box.setValue(selected);
+    public void sliceProject(Stage primaryStage) {
+        //System.out.println(lineNumber.getCharacters().toString());
 
-                InlineCssTextArea codeArea = new InlineCssTextArea();
+        String criterionInput = lineNumber.getCharacters().toString();
 
-                codeArea.setPrefSize(500, 500);
-                combo_box.setPrefWidth(500);
+        try {
 
-                String [] lines = folderProcessor.getPathCodeMap().get(selected);
+            int criterionLineNumber = Integer.parseInt(criterionInput);
 
-                for (int i=0; i<lines.length; i++)
-                {
-                    codeArea.replace(codeArea.getLength(), codeArea.getLength(), lines[i], "");
+            codeArea.clear();
+            for (int i = 0; i < folderProcessor.getPathCodeMap().get(combo_box.getValue()).length; i++) {
+                if (i + 1 == criterionLineNumber) {
+                    codeArea.replace(codeArea.getLength(), codeArea.getLength(), folderProcessor.getPathCodeMap().get(combo_box.getValue())[i], "-rtfx-background-color: red;");
+                    codeArea.replace(codeArea.getLength(), codeArea.getLength(), "\n", "");
+                } else {
+                    codeArea.replace(codeArea.getLength(), codeArea.getLength(), folderProcessor.getPathCodeMap().get(combo_box.getValue())[i], "-rtfx-background-color: white;");
                     codeArea.replace(codeArea.getLength(), codeArea.getLength(), "\n", "");
                 }
+            }
 
-                // add line numbers to the left of area
-                codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
+            ComboBox combo_box2 =
+                    new ComboBox(FXCollections
+                            .observableArrayList(folderProcessor.getPathCodeMap().keySet().toArray()));
 
+            // Label to display the selected menuitem
+            //Label selected = new Label((String) folderProcessor.getPathCodeMap().keySet().toArray()[0]);
 
-                // auto-indent: insert previous line's indents on enter
-                final Pattern whiteSpace = Pattern.compile( "^\\s+" );
-                codeArea.addEventHandler( KeyEvent.KEY_PRESSED, KE ->
-                {
-                    if ( KE.getCode() == KeyCode.ENTER ) {
-                        int caretPosition = codeArea.getCaretPosition();
-                        int currentParagraph = codeArea.getCurrentParagraph();
-                        Matcher m0 = whiteSpace.matcher( codeArea.getParagraph( currentParagraph-1 ).getSegments().get( 0 ) );
-                        if ( m0.find() ) Platform.runLater( () -> codeArea.insertText( caretPosition, m0.group() ) );
+            String selected2 = combo_box.getValue().toString();
+
+            try {
+                sdg = new SDG(folderProcessor.getFolder().getAbsolutePath(), selected2, criterionLineNumber);
+                //createGraph(primaryStage, sdg.sdgRoot);
+                if (sdg.isValidCriterion()) {
+                    backwardSlicingMapForClassLineNumbers = sdg.getBackwardSlicingMapForClassLineNumbers();
+                    forwardSlicingMapForClassLineNumbers = sdg.getForwardSlicingMapForClassLineNumbers();
+                } else {
+                    throw new NumberFormatException("Invalid Criterion");
+                }
+            } catch (IOException ex) {
+
+            }
+
+            combo_box2.setValue(selected2);
+
+            InlineCssTextArea codeArea2 = new InlineCssTextArea();
+
+            codeArea2.setPrefSize(500, 500);
+            combo_box2.setPrefWidth(500);
+
+            String[] lines2 = folderProcessor.getPathCodeMap().get(selected2);
+
+            for (int i = 0; i < lines2.length; i++) {
+                if (slicingType.equals("Backward Slicing")) {
+                                /*System.out.println(slicingType);
+                                System.out.println("dhukesi");*/
+                    if (backwardSlicingMapForClassLineNumbers.get(selected2).contains(i + 1)) {
+                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
+                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                    } else {
+                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
+                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
                     }
-                });
+                }
+                if (slicingType.equals("Forward Slicing")) {
+                    if (forwardSlicingMapForClassLineNumbers.get(selected2).contains(i + 1)) {
+                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
+                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                    } else {
+                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
+                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                    }
+                }
+
+            }
+
+            // add line numbers to the left of area
+            codeArea2.setParagraphGraphicFactory(LineNumberFactory.get(codeArea2));
+
+            // Create action event
+            EventHandler<ActionEvent> event2 =
+                    new EventHandler<ActionEvent>() {
+                        public void handle(ActionEvent e) {
+                            String[] lines2 = folderProcessor.getPathCodeMap().get(combo_box2.getValue());
+
+                            codeArea2.clear();
+
+                            for (int i = 0; i < lines2.length; i++) {
+                                if (slicingType.equals("Backward Slicing")) {
+                                    if (backwardSlicingMapForClassLineNumbers.containsKey(combo_box2.getValue())) {
+                                        if (backwardSlicingMapForClassLineNumbers.get(combo_box2.getValue()).contains(i + 1)) {
+                                            codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
+                                            codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                        } else {
+                                            codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
+                                            codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                        }
+                                    } else {
+                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
+                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                    }
+                                }
+                                if (slicingType.equals("Forward Slicing")) {
+                                    if (forwardSlicingMapForClassLineNumbers.containsKey(combo_box2.getValue())) {
+                                        if (forwardSlicingMapForClassLineNumbers.get(combo_box2.getValue()).contains(i + 1)) {
+                                            codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
+                                            codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                        } else {
+                                            codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
+                                            codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                        }
+                                    } else {
+                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
+                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
+                                    }
+                                }
+                            }
+                            //selected.setText((String) combo_box.getValue());
+                            //codeArea.replace(0, 0, folderProcessor.getPathCodeMap().get(combo_box.getValue()),"");
+                        }
+                    };
+
+            // Set on action
+            combo_box2.setOnAction(event2);
 
 
-                codeArea.getStylesheets().add("java-keywords.css");
+            // auto-indent: insert previous line's indents on enter
+            final Pattern whiteSpace2 = Pattern.compile("^\\s+");
+            codeArea2.addEventHandler(KeyEvent.KEY_PRESSED, KE ->
+            {
+                if (KE.getCode() == KeyCode.ENTER) {
+                    int caretPosition = codeArea2.getCaretPosition();
+                    int currentParagraph = codeArea2.getCurrentParagraph();
+                    Matcher m0 = whiteSpace2.matcher(codeArea2.getParagraph(currentParagraph - 1).getSegments().get(0));
+                    if (m0.find()) Platform.runLater(() -> codeArea2.insertText(caretPosition, m0.group()));
+                }
+            });
+
+
+            codeArea2.getStylesheets().add("java-keywords.css");
+
+            Button newProject = new Button("New Project");
+            newProject.setOnAction(newProjectEvent -> {
+                openNewProject(primaryStage);
+            });
+
+            newProject.setPrefSize(500, 30);
+
+            Button newSlice = new Button("New Slice");
+            newSlice.setOnAction(newSliceEvent -> {
+                showGraph(primaryStage);
+            });
+
+            newSlice.setPrefSize(500, 30);
+
+            GridPane root = new GridPane();
+            root.add(combo_box, 0, 0);
+            root.add(new VirtualizedScrollPane<>(codeArea), 0, 1);
+            root.add(newSlice, 0, 2);
+            root.add(combo_box2, 1, 0);
+            root.add(new VirtualizedScrollPane<>(codeArea2), 1, 1);
+            root.add(newProject, 1, 2);
+
+            Scene scene = new Scene(root, 1000, 500);
+
+            scene.getStylesheets().add("java-keywords.css");
+            primaryStage.setScene(scene);
+            primaryStage.setTitle("OOPSlicer");
+            primaryStage.show();
+        } catch (NumberFormatException ex) {
+            if (ex.getMessage().equals("Invalid Criterion")) {
+                Alert a = new Alert(Alert.AlertType.ERROR);
+                a.setContentText("Please input a valid slicing criterion");
+                a.show();
+            } else {
+                Alert a = new Alert(Alert.AlertType.ERROR);
+                a.setContentText("Please input a valid integer line number");
+                a.show();
+            }
+        }
+    }
+
+    public void showNewProject(Stage primaryStage)
+    {
+        try {
+            folderProcessor.setFolder(selectedDirectory.getAbsolutePath());
+
+            combo_box =
+                    new ComboBox(FXCollections
+                            .observableArrayList(folderProcessor.getPathCodeMap().keySet().toArray()));
+
+            // Label to display the selected menuitem
+            //Label selected = new Label((String) folderProcessor.getPathCodeMap().keySet().toArray()[0]);
+
+            String selected = folderProcessor.getPathCodeMap().keySet().toArray()[0].toString();
+            combo_box.setValue(selected);
+
+            codeArea = new InlineCssTextArea();
+
+            codeArea.setPrefSize(500, 500);
+            combo_box.setPrefWidth(500);
+
+            String [] lines = folderProcessor.getPathCodeMap().get(selected);
+
+            for (int i=0; i<lines.length; i++)
+            {
+                codeArea.replace(codeArea.getLength(), codeArea.getLength(), lines[i], "");
+                codeArea.replace(codeArea.getLength(), codeArea.getLength(), "\n", "");
+            }
+
+            // add line numbers to the left of area
+            codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
+
+
+            // auto-indent: insert previous line's indents on enter
+            final Pattern whiteSpace = Pattern.compile( "^\\s+" );
+            codeArea.addEventHandler( KeyEvent.KEY_PRESSED, KE ->
+            {
+                if ( KE.getCode() == KeyCode.ENTER ) {
+                    int caretPosition = codeArea.getCaretPosition();
+                    int currentParagraph = codeArea.getCurrentParagraph();
+                    Matcher m0 = whiteSpace.matcher( codeArea.getParagraph( currentParagraph-1 ).getSegments().get( 0 ) );
+                    if ( m0.find() ) Platform.runLater( () -> codeArea.insertText( caretPosition, m0.group() ) );
+                }
+            });
+
+
+            codeArea.getStylesheets().add("java-keywords.css");
 
         /*codeArea.replace(0,0,sampleCode2, "-rtfx-background-color: red;");
 
         codeArea.replace(1, 1, sampleCode, "-rtfx-background-color: white;");*/
 
-                TextField lineNumber = new TextField("Enter Line Number");
+            lineNumber = new TextField("Enter Line Number");
 
-                Button slicer = new Button("Slice Project");
-                slicer.setOnAction(slicingEvent -> {
-                    //System.out.println(lineNumber.getCharacters().toString());
+            Button slicer = new Button();
+            Image slicerImage = new Image(new FileInputStream("resources/slice.png"));
+            ImageView slicerImageView = new ImageView(slicerImage);
+            slicerImageView.setSmooth(true);
+            slicerImageView.setFitHeight(20);
+            slicerImageView.setPreserveRatio(true);
+            slicerImageView.setFitWidth(150);
+            //slicerImageView.setFitWidth(150);
+            slicer.setGraphic(slicerImageView);
+            slicer.setOnAction(slicingEvent -> {
+                sliceProject(primaryStage);
+            });
 
-                    String criterionInput = lineNumber.getCharacters().toString();
-
-                    try {
-
-                        int criterionLineNumber = Integer.parseInt(criterionInput);
-
-                        codeArea.clear();
-                        for (int i=0; i<folderProcessor.getPathCodeMap().get(combo_box.getValue()).length; i++)
+            // Create action event
+            EventHandler<ActionEvent> event =
+                    new EventHandler<ActionEvent>() {
+                        public void handle(ActionEvent e)
                         {
-                            if (i+1==criterionLineNumber)
+                            String [] lines = folderProcessor.getPathCodeMap().get(combo_box.getValue());
+
+                            codeArea.clear();
+
+                            for (int i=0; i<lines.length; i++)
                             {
-                                codeArea.replace(codeArea.getLength(), codeArea.getLength(), folderProcessor.getPathCodeMap().get(combo_box.getValue())[i], "-rtfx-background-color: red;");
+                                codeArea.replace(codeArea.getLength(), codeArea.getLength(), lines[i], "");
                                 codeArea.replace(codeArea.getLength(), codeArea.getLength(), "\n", "");
                             }
-                            else
-                            {
-                                codeArea.replace(codeArea.getLength(), codeArea.getLength(), folderProcessor.getPathCodeMap().get(combo_box.getValue())[i], "-rtfx-background-color: white;");
-                                codeArea.replace(codeArea.getLength(), codeArea.getLength(), "\n", "");
-                            }
-                        }
+                            //selected.setText((String) combo_box.getValue());
+                            //codeArea.replace(0, 0, folderProcessor.getPathCodeMap().get(combo_box.getValue()),"");
 
-                        ComboBox combo_box2 =
-                                new ComboBox(FXCollections
-                                        .observableArrayList(folderProcessor.getPathCodeMap().keySet().toArray()));
+                            ComboBox slicingOperation =
+                                    new ComboBox(FXCollections
+                                            .observableArrayList(new String[]{"Backward Slicing", "Forward Slicing"}));
 
-                        // Label to display the selected menuitem
-                        //Label selected = new Label((String) folderProcessor.getPathCodeMap().keySet().toArray()[0]);
+                            slicingOperation.setValue(slicingType);
 
-                        String selected2 = combo_box.getValue().toString();
-
-                        try {
-                            SDG sdg = new SDG(folderProcessor.getFolder().getAbsolutePath(), selected2, criterionLineNumber);
-                            createGraph(primaryStage, sdg.sdgRoot);
-                            if (sdg.isValidCriterion())
-                            {
-                                backwardSlicingMapForClassLineNumbers = sdg.getBackwardSlicingMapForClassLineNumbers();
-                                forwardSlicingMapForClassLineNumbers = sdg.getForwardSlicingMapForClassLineNumbers();
-                            }
-                            else
-                            {
-                                throw new NumberFormatException("Invalid Criterion");
-                            }
-                        } catch (IOException ex) {
-
-                        }
-
-                        combo_box2.setValue(selected2);
-
-                        InlineCssTextArea codeArea2 = new InlineCssTextArea();
-
-                        codeArea2.setPrefSize(500, 500);
-                        combo_box2.setPrefWidth(500);
-
-                        String [] lines2 = folderProcessor.getPathCodeMap().get(selected2);
-
-                        for (int i=0; i<lines2.length; i++)
-                        {
-                            if (slicingType.equals("Backward Slicing"))
-                            {
-                                /*System.out.println(slicingType);
-                                System.out.println("dhukesi");*/
-                                if (backwardSlicingMapForClassLineNumbers.get(selected2).contains(i+1))
-                                {
-                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
-                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
-                                }
-                                else
-                                {
-                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
-                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
-                                }
-                            }
-                            if (slicingType.equals("Forward Slicing"))
-                            {
-                                if (forwardSlicingMapForClassLineNumbers.get(selected2).contains(i+1))
-                                {
-                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
-                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
-                                }
-                                else
-                                {
-                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
-                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
-                                }
-                            }
-
-                        }
-
-                        // add line numbers to the left of area
-                        codeArea2.setParagraphGraphicFactory(LineNumberFactory.get(codeArea2));
-
-                        // Create action event
-                        EventHandler<ActionEvent> event2 =
-                                new EventHandler<ActionEvent>() {
-                                    public void handle(ActionEvent e)
-                                    {
-                                        String [] lines2 = folderProcessor.getPathCodeMap().get(combo_box2.getValue());
-
-                                        codeArea2.clear();
-
-                                        for (int i=0; i<lines2.length; i++)
+                            EventHandler<ActionEvent> selectSlicingOperation =
+                                    new EventHandler<ActionEvent>() {
+                                        public void handle(ActionEvent e)
                                         {
-                                            if (slicingType.equals("Backward Slicing"))
-                                            {
-                                                if (backwardSlicingMapForClassLineNumbers.containsKey(combo_box2.getValue()))
-                                                {
-                                                    if (backwardSlicingMapForClassLineNumbers.get(combo_box2.getValue()).contains(i+1))
-                                                    {
-                                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
-                                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
-                                                    }
-                                                    else
-                                                    {
-                                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
-                                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
-                                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
-                                                }
-                                            }
-                                            if (slicingType.equals("Forward Slicing"))
-                                            {
-                                                if (forwardSlicingMapForClassLineNumbers.containsKey(combo_box2.getValue()))
-                                                {
-                                                    if (forwardSlicingMapForClassLineNumbers.get(combo_box2.getValue()).contains(i+1))
-                                                    {
-                                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: red;");
-                                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
-                                                    }
-                                                    else
-                                                    {
-                                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
-                                                        codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), lines2[i], "-rtfx-background-color: white;");
-                                                    codeArea2.replace(codeArea2.getLength(), codeArea2.getLength(), "\n", "");
-                                                }
-                                            }
+                                            slicingType = slicingOperation.getValue().toString();
+                                            //System.out.println(slicingType);
                                         }
-                                        //selected.setText((String) combo_box.getValue());
-                                        //codeArea.replace(0, 0, folderProcessor.getPathCodeMap().get(combo_box.getValue()),"");
-                                    }
-                                };
+                                    };
 
-                        // Set on action
-                        combo_box2.setOnAction(event2);
+                            slicingOperation.setOnAction(selectSlicingOperation);
 
+                            VBox vBox = new VBox();
 
-                        // auto-indent: insert previous line's indents on enter
-                        final Pattern whiteSpace2 = Pattern.compile( "^\\s+" );
-                        codeArea2.addEventHandler( KeyEvent.KEY_PRESSED, KE ->
-                        {
-                            if ( KE.getCode() == KeyCode.ENTER ) {
-                                int caretPosition = codeArea2.getCaretPosition();
-                                int currentParagraph = codeArea2.getCurrentParagraph();
-                                Matcher m0 = whiteSpace2.matcher( codeArea2.getParagraph( currentParagraph-1 ).getSegments().get( 0 ) );
-                                if ( m0.find() ) Platform.runLater( () -> codeArea2.insertText( caretPosition, m0.group() ) );
-                            }
-                        });
+                            vBox.setPadding(new Insets(150));
 
+                            slicingOperation.setPrefSize(150, 30);
+                            slicer.setPrefSize(150, 30);
+                            lineNumber.setPrefSize(150, 30);
 
-                        codeArea2.getStylesheets().add("java-keywords.css");
+                            vBox.getChildren().add(lineNumber);
+                            vBox.setMargin(lineNumber, new Insets(10));
+                            vBox.getChildren().add(slicingOperation);
+                            vBox.setMargin(slicingOperation, new Insets(10));
+                            vBox.getChildren().add(slicer);
+                            vBox.setMargin(slicer, new Insets(10));
 
-                        GridPane root = new GridPane();
-                        root.add(combo_box, 0, 0);
-                        root.add(new VirtualizedScrollPane<>(codeArea), 0, 1);
-                        root.add(combo_box2, 1, 0);
-                        root.add(new VirtualizedScrollPane<>(codeArea2), 1, 1);
+                            GridPane root = new GridPane();
+                            root.add(combo_box, 0, 0);
+                            root.add(new VirtualizedScrollPane<>(codeArea), 0, 1);
+                            root.add(vBox, 1, 1);
 
-                        Scene scene = new Scene(root, 1000, 500);
+                            Scene scene = new Scene(root, 1000, 500);
 
-                        scene.getStylesheets().add("java-keywords.css");
-                        primaryStage.setScene(scene);
-                        primaryStage.setTitle("OOPSlicer");
-                        primaryStage.show();
-                    }
-                    catch (NumberFormatException ex)
-                    {
-                        if (ex.getMessage().equals("Invalid Criterion"))
-                        {
-                            Alert a = new Alert(Alert.AlertType.ERROR);
-                            a.setContentText("Please input a valid slicing criterion");
-                            a.show();
+                            scene.getStylesheets().add("java-keywords.css");
+                            primaryStage.setScene(scene);
+                            primaryStage.setTitle("OOPSlicer");
+                            primaryStage.show();
                         }
-                        else
+                    };
+
+            // Set on action
+            combo_box.setOnAction(event);
+
+
+            ComboBox slicingOperation =
+                    new ComboBox(FXCollections
+                            .observableArrayList(new String[]{"Backward Slicing", "Forward Slicing"}));
+
+            slicingOperation.setValue(slicingType);
+
+            EventHandler<ActionEvent> selectSlicingOperation =
+                    new EventHandler<ActionEvent>() {
+                        public void handle(ActionEvent e)
                         {
-                            Alert a = new Alert(Alert.AlertType.ERROR);
-                            a.setContentText("Please input a valid integer line number");
-                            a.show();
+                            slicingType = slicingOperation.getValue().toString();
+                            //System.out.println(slicingType);
                         }
-                    }
-                });
+                    };
 
-                // Create action event
-                EventHandler<ActionEvent> event =
-                        new EventHandler<ActionEvent>() {
-                            public void handle(ActionEvent e)
-                            {
-                                String [] lines = folderProcessor.getPathCodeMap().get(combo_box.getValue());
-
-                                codeArea.clear();
-
-                                for (int i=0; i<lines.length; i++)
-                                {
-                                    codeArea.replace(codeArea.getLength(), codeArea.getLength(), lines[i], "");
-                                    codeArea.replace(codeArea.getLength(), codeArea.getLength(), "\n", "");
-                                }
-                                //selected.setText((String) combo_box.getValue());
-                                //codeArea.replace(0, 0, folderProcessor.getPathCodeMap().get(combo_box.getValue()),"");
-
-                                ComboBox slicingOperation =
-                                        new ComboBox(FXCollections
-                                                .observableArrayList(new String[]{"Backward Slicing", "Forward Slicing"}));
-
-                                slicingOperation.setValue(slicingType);
-
-                                EventHandler<ActionEvent> selectSlicingOperation =
-                                        new EventHandler<ActionEvent>() {
-                                            public void handle(ActionEvent e)
-                                            {
-                                                slicingType = slicingOperation.getValue().toString();
-                                                //System.out.println(slicingType);
-                                            }
-                                        };
-
-                                slicingOperation.setOnAction(selectSlicingOperation);
+            slicingOperation.setOnAction(selectSlicingOperation);
 
 
-                                GridPane root = new GridPane();
-                                root.add(combo_box, 0, 0);
-                                root.add(new VirtualizedScrollPane<>(codeArea), 0, 1);
-                                root.add(lineNumber, 1, 1);
-                                root.add(slicingOperation, 2, 1);
-                                root.add(slicer, 3, 1);
+            VBox vBox = new VBox();
 
-                                Scene scene = new Scene(root, 1000, 500);
-
-                                scene.getStylesheets().add("java-keywords.css");
-                                primaryStage.setScene(scene);
-                                primaryStage.setTitle("OOPSlicer");
-                                primaryStage.show();
-                            }
-                        };
-
-                // Set on action
-                combo_box.setOnAction(event);
-
-
-                ComboBox slicingOperation =
-                        new ComboBox(FXCollections
-                                .observableArrayList(new String[]{"Backward Slicing", "Forward Slicing"}));
-
-                slicingOperation.setValue(slicingType);
-
-                EventHandler<ActionEvent> selectSlicingOperation =
-                        new EventHandler<ActionEvent>() {
-                            public void handle(ActionEvent e)
-                            {
-                                slicingType = slicingOperation.getValue().toString();
-                                //System.out.println(slicingType);
-                            }
-                        };
-
-                slicingOperation.setOnAction(selectSlicingOperation);
-
-
-                VBox vBox = new VBox();
-
-                vBox.setPadding(new Insets(150));
+            vBox.setPadding(new Insets(150));
 
                 /*slicingOperation.setMinHeight(30);
                 slicingOperation.setMinWidth(100);*/
 
-                slicingOperation.setPrefSize(150, 30);
-                slicer.setPrefSize(150, 30);
-                lineNumber.setPrefSize(150, 30);
+            slicingOperation.setPrefSize(150, 30);
+            slicer.setPrefSize(150, 30);
+            lineNumber.setPrefSize(150, 30);
 
                 /*slicer.setMinHeight(30);
                 slicer.setMinWidth(100);
@@ -429,51 +482,77 @@ public class Main extends Application {
                 lineNumber.setMinHeight(30);
                 lineNumber.setMinWidth(100);*/
 
-                vBox.getChildren().add(lineNumber);
-                vBox.setMargin(lineNumber, new Insets(10));
-                vBox.getChildren().add(slicingOperation);
-                vBox.setMargin(slicingOperation, new Insets(10));
-                vBox.getChildren().add(slicer);
-                vBox.setMargin(slicer, new Insets(10));
+            vBox.getChildren().add(lineNumber);
+            vBox.setMargin(lineNumber, new Insets(10));
+            vBox.getChildren().add(slicingOperation);
+            vBox.setMargin(slicingOperation, new Insets(10));
+            vBox.getChildren().add(slicer);
+            vBox.setMargin(slicer, new Insets(10));
 
-                GridPane root = new GridPane();
-                root.add(combo_box, 0, 0);
-                root.add(new VirtualizedScrollPane<>(codeArea), 0, 1);
-                root.add(vBox, 1, 1);
+            GridPane root = new GridPane();
+            root.add(combo_box, 0, 0);
+            root.add(new VirtualizedScrollPane<>(codeArea), 0, 1);
+            root.add(vBox, 1, 1);
                 /*root.add(lineNumber, 2, 1);
                 root.add(slicingOperation, 2, 2);
                 root.add(slicer, 2, 3);*/
 
-                Scene scene = new Scene(root, 1000, 500);
+            Scene scene = new Scene(root, 1000, 500);
 
-                scene.getStylesheets().add("java-keywords.css");
-                primaryStage.setScene(scene);
-                primaryStage.setTitle("OOPSlicer");
-                primaryStage.show();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            scene.getStylesheets().add("java-keywords.css");
+            primaryStage.setScene(scene);
+            primaryStage.setTitle("OOPSlicer");
+            primaryStage.show();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
+    public void openNewProject (Stage primaryStage)
+    {
+        File sd = directoryChooser.showDialog(primaryStage);
+        if (sd!=null)
+        {
+            selectedDirectory = sd;
+            showNewProject(primaryStage);
+        }
+    }
+
+    public void showHome (Stage primaryStage) throws FileNotFoundException {
+
+        Image image = new Image(new FileInputStream("resources/oopslicer-logo-cropped.png"));
+        /*image.isPreserveRatio()*/
+        Rectangle rectangle = new Rectangle();
+        rectangle.setFill(new ImagePattern(image));
+        ImageView imageView = new ImageView(image);
+        //alert.setGraphic(dp);
+
+        Button button = new Button("Select Project");
+        button.setOnAction(e -> {
+            openNewProject(primaryStage);
         });
 
         VBox vBox = new VBox();
 
         //VisGraph as = new VisGraph ();
 
-        imageView.setFitWidth(400);
-        imageView.setFitHeight(200);
+        imageView.setFitWidth(1000);
+        imageView.setPreserveRatio(true);
+        //imageView.setFitHeight(200);
         button.setPrefSize(150, 30);
         vBox.getChildren().add(imageView);
-        vBox.setMargin(imageView, new Insets(100, 300, 110, 300));
+        vBox.setMargin(imageView, new Insets(50, 0, 0, 0));
         vBox.getChildren().add(button);
         vBox.setMargin(button, new Insets(10, 425, 110, 425));
 
         AnchorPane root = new AnchorPane();
 
-        //root.setPadding(new Insets(100, 200, 100, 200));
-        //root.add(imageView, 0, 0);
         root.getChildren().add(vBox);
         Scene scene = new Scene(root, 1000, 500);
         scene.getStylesheets().add("java-keywords.css");
+        //scene.setFill(Color.WHITE);
+        root.setStyle("-fx-background-color: white;");
         primaryStage.setScene(scene);
         primaryStage.setTitle("OOPSlicer");
         primaryStage.getIcons().add(image);

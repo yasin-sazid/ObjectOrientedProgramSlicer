@@ -2,9 +2,35 @@
     background-color: darkslateblue; text-fill: white;
 }
 
+* {
+	-fx-primary-color: #007acc;
+	-fx-secondary-color: #4B6EAF;
+	-fx-grey-color: #b9b9b9;
+
+	-fx-focus-color: black;
+}
+
 .button {
     -fx-background-color:
-        #007acc,
+        -fx-primary-color,
+        linear-gradient(#d6d6d6 50%, white 100%),
+        radial-gradient(center 50% -40%, radius 200%, #e6e6e6 45%, rgba(230,230,230,0) 50%);
+    -fx-background-radius: 30;
+    -fx-background-insets: 0,1,1;
+    -fx-text-fill: black;
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 3, 0.0 , 0 , 1 );
+    -fx-font-family: 'Helvetica', Arial, sans-serif;
+    -fx-font-weight: bold;
+}
+
+.scene {
+    -fx-background-color:
+            white;
+}
+
+.button:hover {
+    -fx-background-color:
+        -fx-focus-color,
         linear-gradient(#d6d6d6 50%, white 100%),
         radial-gradient(center 50% -40%, radius 200%, #e6e6e6 45%, rgba(230,230,230,0) 50%);
     -fx-background-radius: 30;
@@ -13,39 +39,56 @@
     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 3, 0.0 , 0 , 1 );
 }
 
-* {
-	-fx-primary-color: #007acc;
-	-fx-secondary-color: #4B6EAF;
-	-fx-grey-color: #b9b9b9;
-
-	-fx-focus-color: -fx-secondary-color;
+.button:pressed {
+    -fx-background-color:
+            -fx-focus-color,
+            linear-gradient(#d6d6d6 50%, white 100%),
+            radial-gradient(center 50% -40%, radius 200%, #e6e6e6 45%, rgba(230,230,230,0) 50%);
 }
 
 .text-field {
 	-fx-accent: -fx-primary-color;
-	-fx-background-color: #007acc,
+	-fx-background-color: -fx-primary-color,
                           linear-gradient(#d6d6d6 50%, white 100%),
                           radial-gradient(center 50% -40%, radius 200%, #e6e6e6 45%, rgba(230,230,230,0) 50%);
 	-fx-background-insets: 0, 0 0 1 0;
-	-fx-background-radius: 0;
+	-fx-background-radius: 30;
+	-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 3, 0.0 , 0 , 1 );
+
+	-fx-font-family: 'Helvetica', Arial, sans-serif;
+        -fx-font-weight: bold;
 }
 
 .text-field:focused {
-	-fx-background-color: -fx-primary-color, white;
+	-fx-background-color: -fx-focus-color, white;
 }
+
+/*.button:focused {
+	-fx-background-color:
+            -fx-focus-color,
+            linear-gradient(#d6d6d6 50%, white 100%),
+            radial-gradient(center 50% -40%, radius 200%, #e6e6e6 45%, rgba(230,230,230,0) 50%);
+}*/
 
 .combo-box {
     -fx-accent: -fx-primary-color;
-	-fx-background-color: #007acc,
+	-fx-background-color: -fx-primary-color,
                           linear-gradient(#d6d6d6 50%, white 100%),
                           radial-gradient(center 50% -40%, radius 200%, #e6e6e6 45%, rgba(230,230,230,0) 50%);
 	-fx-background-insets: 0, 0 0 1 0;
-	-fx-background-radius: 0;
+	-fx-background-radius: 30;
+	-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 3, 0.0 , 0 , 1 );
+
+	-fx-font-family: 'Helvetica', Arial, sans-serif;
+        -fx-font-weight: bold;
 }
 
-/*.combo-box:focused {
-	-fx-background-color: -fx-primary-color, white;
-}*/
+.combo-box:focused {
+	-fx-background-color:
+            -fx-focus-color,
+            linear-gradient(#d6d6d6 50%, white 100%),
+            radial-gradient(center 50% -40%, radius 200%, #e6e6e6 45%, rgba(230,230,230,0) 50%);
+}
 
 /*
 .keyword {

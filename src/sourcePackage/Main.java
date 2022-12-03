@@ -14,6 +14,8 @@ public class Main {
 
         maths.add("asa");
 
+        maths.add("asa");
+
         maths.add(2);
     }
 
