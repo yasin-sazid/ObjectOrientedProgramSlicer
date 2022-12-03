@@ -38,6 +38,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
@@ -64,6 +65,8 @@ import visGraphPackage.java.graph.VisEdge;
 import visGraphPackage.java.graph.VisGraph;
 import visGraphPackage.java.graph.VisNode;
 
+import javax.swing.text.BadLocationException;
+
 public class Main extends Application {
 
     Map<String, Set<Integer>> forwardSlicingMapForClassLineNumbers;
@@ -85,6 +88,8 @@ public class Main extends Application {
 
     String slicingType = "Backward Slicing";
 
+    Image sliceIcon;
+
     SDG sdg;
 
     public static void main(String[] args) {
@@ -94,6 +99,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         primaryStage.setResizable(false);
+        sliceIcon = new Image(new FileInputStream("resources/slicer-logo.png"));
         showHome(primaryStage);
     }
 
@@ -268,10 +274,19 @@ public class Main extends Application {
         } catch (NumberFormatException ex) {
             if (ex.getMessage().equals("Invalid Criterion")) {
                 Alert a = new Alert(Alert.AlertType.ERROR);
+                a.setHeaderText("Invalid Criterion");
+                a.setTitle("OOPSlicer");
+                ((Stage)a.getDialogPane().getScene().getWindow()).getIcons().add(sliceIcon);
                 a.setContentText("Please input a valid slicing criterion");
                 a.show();
             } else {
                 Alert a = new Alert(Alert.AlertType.ERROR);
+                a.setHeaderText("Invalid Input");
+                a.setTitle("OOPSlicer");
+                /*Rectangle dp = new Rectangle(70, 70);
+                dp.setFill(new ImagePattern(sliceIcon));
+                a.setGraphic(dp);*/
+                ((Stage)a.getDialogPane().getScene().getWindow()).getIcons().add(sliceIcon);
                 a.setContentText("Please input a valid integer line number");
                 a.show();
             }
@@ -527,7 +542,7 @@ public class Main extends Application {
         root.setStyle("-fx-background-color: white;");
         primaryStage.setScene(scene);
         primaryStage.setTitle("OOPSlicer");
-        Image sliceIcon = new Image(new FileInputStream("resources/slicer-logo.png"));
+
         primaryStage.getIcons().add(sliceIcon);
         primaryStage.show();
     }
