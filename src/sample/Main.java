@@ -93,45 +93,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        //primaryStage.setResizable(false);
+        primaryStage.setResizable(false);
         showHome(primaryStage);
-    }
-
-    public void showGraph (Stage primaryStage)
-    {
-        Digraph<String, String> g = new DigraphEdgeList<>();
-
-        g.insertVertex("A");
-        g.insertVertex("A");
-        g.insertVertex("B");
-        g.insertVertex("C");
-        g.insertVertex("D");
-        g.insertVertex("E");
-        g.insertVertex("F");
-
-        g.insertEdge("A", "B", "AB");
-        g.insertEdge("B", "A", "AB2");
-        g.insertEdge("A", "C", "AC");
-        g.insertEdge("A", "D", "AD");
-        g.insertEdge("B", "C", "BC");
-        g.insertEdge("C", "D", "CD");
-        g.insertEdge("B", "E", "BE");
-        g.insertEdge("F", "D", "DF");
-        g.insertEdge("F", "D", "DF2");
-
-        //g.insertEdge("A", "A", "Loop");
-
-        //g.ge
-
-        SmartPlacementStrategy strategy = new SmartCircularSortedPlacementStrategy();
-        SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, strategy);
-        Scene scene = new Scene(graphView, 1024, 768);
-
-        primaryStage.setTitle("JavaFXGraph Visualization");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-        //IMPORTANT - Called after scene is displayed so we can have width and height values
-        graphView.init();
     }
 
     public void sliceProject(Stage primaryStage) {
@@ -328,6 +291,14 @@ public class Main extends Application {
             //Label selected = new Label((String) folderProcessor.getPathCodeMap().keySet().toArray()[0]);
 
             String selected = folderProcessor.getPathCodeMap().keySet().toArray()[0].toString();
+            for (String key: folderProcessor.getPathCodeMap().keySet())
+            {
+                if (key.contains("Main"))
+                {
+                    selected = key;
+                }
+            }
+
             combo_box.setValue(selected);
 
             codeArea = new InlineCssTextArea();
@@ -556,7 +527,8 @@ public class Main extends Application {
         root.setStyle("-fx-background-color: white;");
         primaryStage.setScene(scene);
         primaryStage.setTitle("OOPSlicer");
-        primaryStage.getIcons().add(image);
+        Image sliceIcon = new Image(new FileInputStream("resources/slicer-logo.png"));
+        primaryStage.getIcons().add(sliceIcon);
         primaryStage.show();
     }
 
