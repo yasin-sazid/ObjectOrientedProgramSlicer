@@ -22,6 +22,7 @@ import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import javafx.animation.FillTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -84,7 +85,7 @@ public class Main extends Application {
 
     InlineCssTextArea codeArea = new InlineCssTextArea();
 
-    TextField lineNumber = new TextField("Enter Line Number");
+    TextField lineNumber = new TextField();
 
     String slicingType = "Backward Slicing";
 
@@ -99,6 +100,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         primaryStage.setResizable(false);
+        lineNumber.setPromptText("Enter Line Number");
         sliceIcon = new Image(new FileInputStream("resources/slicer-logo.png"));
         showHome(primaryStage);
     }
@@ -377,7 +379,7 @@ public class Main extends Application {
 
         codeArea.replace(1, 1, sampleCode, "-rtfx-background-color: white;");*/
 
-            lineNumber = new TextField("Enter Line Number");
+            //lineNumber = new TextField("Enter Line Number");
 
             Button slicer = new Button();
             Image slicerImage = new Image(new FileInputStream("resources/slice.png"));
