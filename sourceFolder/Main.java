@@ -1,24 +1,14 @@
-package sourcePackage;
+package smallSourcePackage;
 
-public class Main {
+public class Main
+{
+    public static void main(String[] args) {
+        int a = 6;
 
-    public static void main(String[] args)
-    {
+        System.out.println(a);
 
-        add(3, 5);
+        a = a + 4;
 
-
-    }
-
-    public static void printAddition (int a, int b)
-    {
-        //System.out.println(add(a,b));
-    }
-
-    public static int add (int a, int b)
-    {
-        int c = a + b;
-        c = c - 1;
-        return c;
+        System.out.println(a);
     }
 }

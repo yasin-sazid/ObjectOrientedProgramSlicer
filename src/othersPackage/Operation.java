@@ -627,6 +627,7 @@ public class Operation {
                         }
                     }
                 }
+                s = null;
             }
 
             public boolean visit (VariableDeclarationStatement node) {
@@ -827,12 +828,13 @@ public class Operation {
                 setOfVariableBinding.clear();
                 marking = 0;
                 graphNodeStack.pop();
+                s = null;
             }
 
             public boolean visit (MethodInvocation node) {
                 //System.out.println(node);
 
-                node.accept(new ASTVisitor()
+                /*node.accept(new ASTVisitor()
                 {
                     public boolean visit(SimpleName child)
                     {
@@ -840,12 +842,13 @@ public class Operation {
                         {
                             if (child.resolveBinding()!=null)
                             {
+                                System.out.println(child);
                                 setOfVariableBinding.add((IVariableBinding) child.resolveBinding());
                             }
                         }
                         return true;
                     }
-                });
+                });*/
 
                 GraphNode temp;
                 temp = new GraphNode(node);
@@ -900,7 +903,10 @@ public class Operation {
                     {
                         g.children.add(graphNodeStack.peek());
                     }
-                    mapForVariableBinding.get(s).add(graphNodeStack.peek());
+                    if (s!=null)
+                    {
+                        mapForVariableBinding.get(s).add(graphNodeStack.peek());
+                    }
                 }
 
                 setOfVariableBinding.clear();
@@ -1013,6 +1019,7 @@ public class Operation {
 
             public void endVisit (PrefixExpression node) {
                 mapForVariableBinding.get(s).add(graphNodeStack.peek());
+                s = null;
             }
 
             public boolean visit (PostfixExpression node) {
@@ -1027,6 +1034,7 @@ public class Operation {
 
             public void endVisit (PostfixExpression node) {
                 mapForVariableBinding.get(s).add(graphNodeStack.peek());
+                s = null;
             }
 
 
