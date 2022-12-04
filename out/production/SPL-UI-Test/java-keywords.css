@@ -1,4 +1,4 @@
-/*.special {
+.special {
     background-color: darkslateblue; text-fill: white;
 }
 
@@ -63,12 +63,12 @@
 	-fx-background-color: -fx-focus-color, white;
 }
 
-*//*.button:focused {
+/*.button:focused {
 	-fx-background-color:
             -fx-focus-color,
             linear-gradient(#d6d6d6 50%, white 100%),
             radial-gradient(center 50% -40%, radius 200%, #e6e6e6 45%, rgba(230,230,230,0) 50%);
-}*//*
+}*/
 
 .combo-box {
     -fx-accent: -fx-primary-color;
@@ -88,8 +88,9 @@
             -fx-focus-color,
             linear-gradient(#d6d6d6 50%, white 100%),
             radial-gradient(center 50% -40%, radius 200%, #e6e6e6 45%, rgba(230,230,230,0) 50%);
-}*/
+}
 
+/*
 .keyword {
     -fx-fill: purple;
     -fx-font-weight: bold;
@@ -120,3 +121,4 @@
 .paragraph-box:has-caret {
     -fx-background-color: #f2f9fc;
 }
+*/
