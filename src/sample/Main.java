@@ -1,9 +1,6 @@
 package sample;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Consumer;
@@ -47,6 +44,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import javafx.stage.StageStyle;
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -77,7 +75,10 @@ public class Main extends Application {
     //directoryChooser.setInitialDirectory(new File("src"));
     FolderProcessor folderProcessor = new FolderProcessor();
 
-    File selectedDirectory;
+    File selectedDirectory = new File("sourceFolder");
+    File originalDirectory;
+
+    String selected;
 
     ComboBox combo_box =
             new ComboBox(FXCollections
@@ -95,6 +96,14 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public void updateFiles () throws IOException {
+        FileUtils.delete(new File(selected));
+        FileWriter writer = new FileWriter(selected, false);
+        writer.write(codeArea.getText());
+        writer.close();
+        folderProcessor.setFolder(selectedDirectory.getAbsolutePath());
     }
 
     @Override
@@ -272,7 +281,11 @@ public class Main extends Application {
 
             Button newProject = new Button("New Project");
             newProject.setOnAction(newProjectEvent -> {
-                openNewProject(primaryStage);
+                try {
+                    openNewProject(primaryStage);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             });
 
             newProject.setPrefSize(500, 30);
@@ -322,6 +335,7 @@ public class Main extends Application {
 
     public void showNewProject(Stage primaryStage)
     {
+
         try {
             folderProcessor.setFolder(selectedDirectory.getAbsolutePath());
 
@@ -332,7 +346,7 @@ public class Main extends Application {
             // Label to display the selected menuitem
             //Label selected = new Label((String) folderProcessor.getPathCodeMap().keySet().toArray()[0]);
 
-            String selected = folderProcessor.getPathCodeMap().keySet().toArray()[0].toString();
+            selected = folderProcessor.getPathCodeMap().keySet().toArray()[0].toString();
             for (String key: folderProcessor.getPathCodeMap().keySet())
             {
                 if (key.contains("Main"))
@@ -391,6 +405,11 @@ public class Main extends Application {
             //slicerImageView.setFitWidth(150);
             slicer.setGraphic(slicerImageView);
             slicer.setOnAction(slicingEvent -> {
+                try {
+                    updateFiles();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 sliceProject(primaryStage);
             });
 
@@ -399,6 +418,15 @@ public class Main extends Application {
                     new EventHandler<ActionEvent>() {
                         public void handle(ActionEvent e)
                         {
+                            try {
+                                updateFiles();
+                            } catch (IOException er) {
+                                er.printStackTrace();
+                            }
+
+                            //System.out.println(selected);
+
+                            selected = (String) combo_box.getValue();
                             String [] lines = folderProcessor.getPathCodeMap().get(combo_box.getValue());
 
                             codeArea.clear();
@@ -446,7 +474,11 @@ public class Main extends Application {
 
                             Button newProject = new Button("New Project");
                             newProject.setOnAction(newProjectEvent -> {
-                                openNewProject(primaryStage);
+                                try {
+                                    openNewProject(primaryStage);
+                                } catch (IOException ex) {
+                                    ex.printStackTrace();
+                                }
                             });
 
                             newProject.setPrefSize(500, 30);
@@ -525,7 +557,11 @@ public class Main extends Application {
 
             Button newProject = new Button("New Project");
             newProject.setOnAction(newProjectEvent -> {
-                openNewProject(primaryStage);
+                try {
+                    openNewProject(primaryStage);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             });
 
             newProject.setPrefSize(500, 30);
@@ -561,12 +597,12 @@ public class Main extends Application {
     }
 
 
-    public void openNewProject (Stage primaryStage)
-    {
+    public void openNewProject (Stage primaryStage) throws IOException {
         File sd = directoryChooser.showDialog(primaryStage);
         if (sd!=null)
         {
-            selectedDirectory = sd;
+            originalDirectory = sd;
+            newFolder();
             showNewProject(primaryStage);
         }
     }
@@ -582,7 +618,11 @@ public class Main extends Application {
 
         Button button = new Button("Select Project");
         button.setOnAction(e -> {
-            openNewProject(primaryStage);
+            try {
+                openNewProject(primaryStage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         });
 
         VBox vBox = new VBox();
@@ -709,5 +749,24 @@ public class Main extends Application {
 
         //Graph the network passing the graph itself and a JavaFX Stage.
         VisFx.graphNetwork(graph,primaryStage);
+    }
+
+    public void deleteFolder(File folder) throws IOException {
+        for (File f: folder.listFiles())
+        {
+            if (f.isDirectory())
+            {
+                FileUtils.deleteDirectory(f);
+            }
+            else
+            {
+                FileUtils.delete(f);
+            }
+        }
+    }
+
+    public void newFolder() throws IOException {
+        deleteFolder(new File("sourceFolder"));
+        FileUtils.copyDirectory(originalDirectory, selectedDirectory);
     }
 }
