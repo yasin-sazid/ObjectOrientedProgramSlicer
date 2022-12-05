@@ -1,14 +1,29 @@
-package smallSourcePackage;
+package sourcePackage;
 
-public class Main
-{
-    public static void main(String[] args) {
-        int a = 6;
+public class Main {
 
-        System.out.println(a);
+    public static void main(String[] args)
+    {
+        //int a = add(3,4);
+        Maths maths = new ExtraExtendedMaths();
 
-        a = a + 4;
+        int a = maths.add(3, 7);
+        //a = maths.add(3, 4);
 
-        System.out.println(a);
+        add(3, 5);
+
+
+    }
+
+    public static void printAddition (int a, int b)
+    {
+        //System.out.println(add(a,b));
+    }
+
+    public static int add (int a, int b)
+    {
+        int c = a + b;
+        c = c - 1;
+        return c;
     }
 }
