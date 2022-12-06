@@ -858,28 +858,8 @@ public class SDG
     int backwardReturnMarker = 0;
     int backWardDeclarationMarker = 0;
 
-    int finalMarker = 0;
-
     void recursionForBackwardSlicing (GraphNode g)
     {
-
-        if (g.node instanceof VariableDeclarationStatement)
-        {
-            for (GraphNode gn: g.getChildren())
-            {
-                if(g.node.toString().contains(gn.node.toString()))
-                {
-                    if(gn.node.getNodeType()==ASTNode.METHOD_INVOCATION)
-                    {
-                        finalMarker = 1;
-                        ASTNode temp = currentParent;
-                        recursionForBackwardSlicing(gn);
-                        currentParent = temp;
-                        finalMarker = 0;
-                    }
-                }
-            }
-        }
 
         if (backwardSlicingMapForClassLineNumbers.containsKey(g.classFilePath))
         {
@@ -937,11 +917,6 @@ public class SDG
             System.out.println(backwardReturnMarker);*/
 
             ASTNode tempu = currentParent;
-
-            if (finalMarker==1 && gg.node instanceof VariableDeclarationStatement)
-            {
-                pickNode = 0;
-            }
 
             if (pickNode == 1)
             {

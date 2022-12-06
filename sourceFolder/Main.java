@@ -2,19 +2,22 @@ package sourcePackage;
 
 public class Main {
 
-     public static int add (int a, int b)
+    public static int add (int a, int b)
     {
         return a+b;
     }
 
     public static void main(String[] args)
     {
+
         //interprocedural
         int a = add(3, 4);
+            add (2, 3);
+            a = add(3, 5);
         a = 6;
         for (int i=0; i<3; i++)
         {
-            a = add(a, a);
+           add(a, a);
         }
 
         //procedural
@@ -42,10 +45,5 @@ public class Main {
         {
             System.out.println(array[i]);
         }*/
-    }
-    
-    public static int add (int a, int b)
-    {
-        return a+b;
     }
 }

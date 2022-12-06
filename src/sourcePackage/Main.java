@@ -14,7 +14,7 @@ public class Main {
         a = 6;
         for (int i=0; i<3; i++)
         {
-            //a = add(a, a);
+            a = add(a, a);
         }
 
         //procedural
