@@ -1,5 +1,6 @@
 package visGraphPackage.java.gui;
 
+import javafx.scene.image.Image;
 import visGraphPackage.java.graph.VisGraph;
 import javafx.application.Application;
 import javafx.concurrent.Worker;
@@ -15,6 +16,9 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 
 public class GraphView extends Application {
 
@@ -25,10 +29,12 @@ public class GraphView extends Application {
     private VisGraph graph;
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage stage) throws FileNotFoundException {
         // create the scene
-        stage.setTitle("Network view");
-        Scene scene = new Scene(new Browser(graph), 1000, 500, Color.web("#666970"));
+        Image sliceIcon = new Image(new FileInputStream("resources/slicer-logo.png"));
+        stage.setTitle("System Dependence Graph");
+        stage.getIcons().add(sliceIcon);
+        Scene scene = new Scene(new Browser(graph), 800, 400, Color.web("#666970"));
         stage.setScene(scene);
         stage.show();
     }

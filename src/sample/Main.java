@@ -30,10 +30,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
@@ -79,6 +76,8 @@ public class Main extends Application {
     File originalDirectory;
 
     String selected;
+
+    VisGraph graph = null;
 
     ComboBox combo_box =
             new ComboBox(FXCollections
@@ -143,7 +142,6 @@ public class Main extends Application {
 
             try {
                 sdg = new SDG(folderProcessor.getFolder().getAbsolutePath(), selected2, criterionLineNumber);
-                //createGraph(primaryStage, sdg.sdgRoot);
                 if (sdg.isValidCriterion()) {
                     backwardSlicingMapForClassLineNumbers = sdg.getBackwardSlicingMapForClassLineNumbers();
                     forwardSlicingMapForClassLineNumbers = sdg.getForwardSlicingMapForClassLineNumbers();
@@ -293,7 +291,7 @@ public class Main extends Application {
                 }
             });
 
-            newProject.setPrefSize(500, 30);
+            newProject.setPrefSize(250, 30);
 
             Button newSlice = new Button("New Slice");
             newSlice.setOnAction(newSliceEvent -> {
@@ -302,13 +300,25 @@ public class Main extends Application {
 
             newSlice.setPrefSize(500, 30);
 
+            Button graph = new Button("View Graph");
+            graph.setOnAction(graphEvent -> {
+                createGraph(new Stage(), sdg.sdgRoot);
+            });
+
+            graph.setPrefSize(250, 30);
+
+            HBox hbox = new HBox();
+
+            hbox.getChildren().add(newProject);
+            hbox.getChildren().add(graph);
+
             GridPane root = new GridPane();
             root.add(combo_box, 0, 0);
             root.add(new VirtualizedScrollPane<>(codeArea), 0, 1);
             root.add(newSlice, 0, 2);
             root.add(combo_box2, 1, 0);
             root.add(new VirtualizedScrollPane<>(codeArea2), 1, 1);
-            root.add(newProject, 1, 2);
+            root.add(hbox, 1, 2);
 
             Scene scene = new Scene(root, 1000, 500);
 
@@ -744,16 +754,22 @@ public class Main extends Application {
 
     public void createGraph (Stage primaryStage, GraphNode root)
     {
-        VisGraph graph = new VisGraph();
+        if (graph==null)
+        {
+            graph = new VisGraph();
 
-        //Create the nodes
+            //Create the nodes
 
-        VisNode node1 = new VisNode(nodeCounter++,"Enter");
+            VisNode node1 = new VisNode(nodeCounter++,"Enter");
 
-        createEdge(graph, primaryStage, node1, root);
+            createEdge(graph, primaryStage, node1, root);
 
-        //Graph the network passing the graph itself and a JavaFX Stage.
-        VisFx.graphNetwork(graph,primaryStage);
+            //Graph the network passing the graph itself and a JavaFX Stage.
+            VisFx.graphNetwork(graph,primaryStage);
+        }
+        else {
+            VisFx.graphNetwork(graph,primaryStage);
+        }
     }
 
     public void deleteFolder(File folder) throws IOException {

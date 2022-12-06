@@ -5,6 +5,8 @@ import visGraphPackage.java.gui.GraphView;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
+import java.io.FileNotFoundException;
+
 public class VisFx{
 
     /**
@@ -14,7 +16,13 @@ public class VisFx{
      */
     public static void graphNetwork(VisGraph graph , Stage mainStage){
         GraphView graphView = new GraphView(graph);
-        Platform.runLater(() -> graphView.start(mainStage));
+        Platform.runLater(() -> {
+            try {
+                graphView.start(mainStage);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
 }
