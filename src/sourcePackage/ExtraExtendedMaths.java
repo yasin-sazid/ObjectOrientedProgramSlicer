@@ -1,7 +1,10 @@
 package sourcePackage;
 
 public class ExtraExtendedMaths extends ExtendedMaths{
-    public ExtraExtendedMaths() {
+
+    public ExtraExtendedMaths()
+    {
+
     }
 
     public int add (int a, int b) {

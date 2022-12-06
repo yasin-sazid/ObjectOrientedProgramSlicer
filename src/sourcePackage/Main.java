@@ -4,26 +4,13 @@ public class Main {
 
     public static void main(String[] args)
     {
-        //int a = add(3,4);
-        Maths maths = new ExtraExtendedMaths();
+        Maths em = new ExtraExtendedMaths();
 
-        int a = maths.add(3, 7);
-        //a = maths.add(3, 4);
-
-        add(3, 5);
-
-
-    }
-
-    public static void printAddition (int a, int b)
-    {
-        //System.out.println(add(a,b));
+        int a = em.add(5, 7);
     }
 
     public static int add (int a, int b)
     {
-        int c = a + b;
-        c = c - 1;
-        return c;
+        return a+b;
     }
 }

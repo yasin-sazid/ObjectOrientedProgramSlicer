@@ -30,7 +30,7 @@ public class SDG
 
     public boolean isValidCriterion = false;
 
-    public SDG(String projectPath, String criterionFilePath, int criterionLineNumber) throws IOException {
+    public SDG(String projectPath, String criterionFilePath, int criterionLineNumber) throws Exception {
         this.projectPath = projectPath;
         this.criterionFilePath = criterionFilePath;
         this.criterionLineNumber = criterionLineNumber;
@@ -128,6 +128,8 @@ public class SDG
                         if (expression != null) {
                             //System.out.println("Expr: " + expression.toString());
                             ITypeBinding typeBinding = expression.resolveTypeBinding();
+                            System.out.println(gn.node);
+                            System.out.println(typeBinding);
                             if (typeBinding != null) {
                                 //System.out.println("Type: " + typeBinding.getName());
                                 //System.out.println("Qualified name: " +typeBinding.getQualifiedName());
@@ -564,6 +566,7 @@ public class SDG
 
         for (GraphNode mdSuper: mapOfClassQualifiedNameToMethodGraphNodes.get(qualifiedSuperClassName))
         {
+            int matchMarker = 0;
             for (GraphNode mdChild: classRoot.children)
             {
                 MethodDeclaration md = (MethodDeclaration) mdChild.node;
@@ -594,6 +597,7 @@ public class SDG
 
                         if (mdParamsList.equals(md2ParamsList))
                         {
+                            matchMarker = 1;
                             //System.out.println(md.resolveBinding());
 
                             for (GraphNode gn: mdSuper.parents)
@@ -622,6 +626,17 @@ public class SDG
 
                         }
                     }
+                }
+            }
+            if (matchMarker ==0)
+            {
+                if (!((MethodDeclaration)mdSuper.node).isConstructor())
+                {
+                    classRoot.children.add(mdSuper);
+                    mdSuper.parents.add(classRoot);
+                    Set<GraphNode> temp = mapOfClassQualifiedNameToMethodGraphNodes.get(classRoot.classQualifiedName);
+                    temp.add(mdSuper);
+                    mapOfClassQualifiedNameToMethodGraphNodes.put(classRoot.classQualifiedName,temp);
                 }
             }
         }
@@ -666,14 +681,27 @@ public class SDG
 
     FolderProcessor folderProcessor;
 
-    public void operations () throws IOException {
+    public void operations () throws Exception {
         folderProcessor = new FolderProcessor(projectPath);
 
         for (File javaFile: folderProcessor.getFiles())
         {
             System.out.println(javaFile);
             Operation op = new Operation(folderProcessor.getEnvironment());
-            op.operations(javaFile.getAbsolutePath());
+            try {
+                op.operations(javaFile.getAbsolutePath());
+            }
+            catch (Exception e)
+            {
+                if (op.root.node!=null)
+                {
+                    classRoots.add(op.root);
+                    mapOfClassQualifiedNameToMethodGraphNodes.put(op.classQualifiedName,op.getSetOfMethodDeclarationGraphNodes());
+                    mapForPathClassRoot.put(javaFile.getAbsolutePath(), op.root);
+                    continue;
+                }
+                continue;
+            }
             classRoots.add(op.root);
             mapOfClassQualifiedNameToMethodGraphNodes.put(op.classQualifiedName,op.getSetOfMethodDeclarationGraphNodes());
             mapForPathClassRoot.put(javaFile.getAbsolutePath(), op.root);
@@ -685,7 +713,9 @@ public class SDG
             classRoot.getParents().add(sdgRoot);
         }
 
-        handleDerivedClasses();
+        //handleDerivedClasses();
+
+        handlePolymorphism();
 
         handleClassInteractions();
 
@@ -920,7 +950,7 @@ public class SDG
         return  fileData.toString();
     }
 
-    public void parser () throws IOException {
+    public void parser () throws Exception {
 
         GraphNode classRoot = mapForPathClassRoot.get(criterionFilePath);
         //System.out.println(classRoot.node);
