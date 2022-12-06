@@ -1,0 +1,25 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="BugTriaging:jar">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="root">
+      <element id="archive" name="BugTriaging.jar">
+        <element id="directory" name="META-INF">
+          <element id="file-copy" path="$PROJECT_DIR$/target/META-INF/MANIFEST.MF" />
+        </element>
+        <element id="module-output" name="BTMaven" />
+      </element>
+      <element id="library" level="project" name="lucene-core-8.6.2" />
+      <element id="library" level="project" name="solr-lucene-core-1.3.0" />
+      <element id="library" level="project" name="lucene-demo-8.6.2" />
+      <element id="library" level="project" name="lucene-analyzers-common-8.6.2" />
+      <element id="library" level="project" name="jdom" />
+      <element id="library" level="project" name="org-eclipse-jgit" />
+      <element id="library" level="project" name="jsoup-1.13.1" />
+      <element id="library" level="project" name="jcabi-0.7.8-sources" />
+      <element id="library" level="project" name="lucene-analyzers-opennlp-8.6.2" />
+      <element id="library" level="project" name="json-simple-1.1" />
+      <element id="library" level="project" name="lucene-queryparser-8.6.2" />
+      <element id="library" level="project" name="javaparser-core-3.16.1" />
+    </root>
+  </artifact>
+</component>

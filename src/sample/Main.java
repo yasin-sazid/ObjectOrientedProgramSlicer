@@ -148,13 +148,15 @@ public class Main extends Application {
                 } else {
                     throw new NumberFormatException("Invalid Criterion");
                 }
-            } catch (Exception ex) {
+            } catch (NullPointerException ex) {
                 Alert a = new Alert(Alert.AlertType.ERROR);
-                a.setHeaderText("Sorry");
+                a.setHeaderText("WARNING");
                 a.setTitle("OOPSlicer");
                 ((Stage)a.getDialogPane().getScene().getWindow()).getIcons().add(sliceIcon);
-                a.setContentText("OOPSlicer can not handle such complicated projects");
+                a.setContentText("Slicing output may not be completely accurate");
                 a.show();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
             List<String> listOfImpactedClassPaths = new ArrayList<>();

@@ -30,7 +30,7 @@ public class SDG
 
     public boolean isValidCriterion = false;
 
-    public SDG(String projectPath, String criterionFilePath, int criterionLineNumber) throws Exception {
+    public SDG(String projectPath, String criterionFilePath, int criterionLineNumber) throws NullPointerException, IOException {
         this.projectPath = projectPath;
         this.criterionFilePath = criterionFilePath;
         this.criterionLineNumber = criterionLineNumber;
@@ -683,7 +683,7 @@ public class SDG
 
     FolderProcessor folderProcessor;
 
-    public void operations () throws Exception {
+    public void operations () throws NullPointerException, IOException {
         folderProcessor = new FolderProcessor(projectPath);
 
         for (File javaFile: folderProcessor.getFiles())
@@ -953,7 +953,7 @@ public class SDG
         return  fileData.toString();
     }
 
-    public void parser () throws Exception {
+    public void parser () throws NullPointerException, IOException {
 
         GraphNode classRoot = mapForPathClassRoot.get(criterionFilePath);
         //System.out.println(classRoot.node);

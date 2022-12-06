@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Main-Class: mainPackage.Main
+Class-Path: lucene-core-8.6.2.jar solr-lucene-core-1.3.0.jar lucene-demo
+ -8.6.2.jar lucene-analyzers-common-8.6.2.jar jdom.jar org-eclipse-jgit.
+ jar jsoup-1.13.1.jar jcabi-0.7.8-sources.jar lucene-analyzers-opennlp-8
+ .6.2.jar json-simple-1.1.jar lucene-queryparser-8.6.2.jar javaparser-co
+ re-3.16.1.jar
+

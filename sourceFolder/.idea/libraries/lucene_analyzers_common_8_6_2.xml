@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="lucene-analyzers-common-8.6.2">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Downloads/lucene-8.6.2/lucene-8.6.2/analysis/common/lucene-analyzers-common-8.6.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
